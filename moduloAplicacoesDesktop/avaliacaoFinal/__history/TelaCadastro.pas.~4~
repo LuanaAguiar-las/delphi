@@ -1,0 +1,103 @@
+unit TelaCadastro;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Datasnap.DBClient;
+
+type
+  TfrmTelaCadastro = class(TForm)
+    pnlProduto: TPanel;
+    pnlBotoes: TPanel;
+    lblNome: TLabel;
+    lblQuantidade: TLabel;
+    lblPreco: TLabel;
+    edtNome: TEdit;
+    edtQuantidade: TEdit;
+    edtPreco: TEdit;
+    btnSalvar: TButton;
+    btnCancelar: TButton;
+    procedure edtNomeExit(Sender: TObject);
+    procedure edtQuantidadeChange(Sender: TObject);
+
+  private
+    { Private declarations }
+
+  public
+    { Public declarations }
+    class procedure Adicionar(pDataSet: TClientDataSet; pOwner: TComponent);
+    class procedure Editar(pDataSet: TClientDataSet; pOwner: TComponent);
+  end;
+
+var
+  frmTelaCadastro: TfrmTelaCadastro;
+
+implementation
+
+{$R *.dfm}
+
+class procedure TfrmTelaCadastro.Adicionar(pDataSet: TClientDataSet; pOwner: TComponent);
+begin
+  var lfrmTelaCadastro := TfrmTelaCadastro.Create(pOwner);
+
+  try
+    if lfrmTelaCadastro.ShowModal = mrOk then
+    begin
+      pDataSet.Append;
+      pDataSet.FieldByName('Nome').AsString := lfrmTelaCadastro.edtNome.Text;
+      pDataSet.FieldByName('Quantidade').AsInteger := StrToInt(lfrmTelaCadastro.edtQuantidade.Text);
+      pDataSet.FieldByName('Preço').AsFloat := StrToFloat(lfrmTelaCadastro.edtPreco.Text);
+      pDataSet.Post;
+    end;
+  finally
+    lfrmTelaCadastro.Free;
+  end;
+end;
+
+class procedure TfrmTelaCadastro.Editar(pDataSet: TClientDataSet; pOwner: TComponent);
+begin
+  var lfrmTelaCadastro := TfrmTelaCadastro.Create(pOwner);
+
+  try
+    lfrmTelaCadastro.edtNome.Text := pDataSet.FieldByName('Nome').AsString;
+    lfrmTelaCadastro.edtQuantidade.Text := IntToStr(pDataSet.FieldByName('Quantidade').AsInteger);
+    lfrmTelaCadastro.edtPreco.Text := FloatToStr(pDataSet.FieldByName('Preço').AsFloat);
+
+    if lfrmTelaCadastro.ShowModal = mrOk then
+    begin
+      pDataSet.Edit;
+      pDataSet.FieldByName('Nome').AsString := lfrmTelaCadastro.edtNome.Text;
+      pDataSet.FieldByName('Quantidade').AsInteger := StrToInt(lfrmTelaCadastro.edtQuantidade.Text);
+      pDataSet.FieldByName('Preço').AsFloat := StrToFloat(lfrmTelaCadastro.edtPreco.Text);
+      pDataSet.Post;
+    end;
+
+  finally
+    lfrmTelaCadastro.Free;
+  end;
+end;
+
+procedure TfrmTelaCadastro.edtNomeExit(Sender: TObject);
+  begin
+    if Screen.ActiveControl = btnCancelar then
+    Exit;
+  
+    if Trim(edtNome.Text) = '' then
+    begin
+      ShowMessage('Preencha o nome do produto.');
+    end;
+  end;  
+
+procedure TfrmTelaCadastro.edtQuantidadeChange(Sender: TObject);
+begin
+    if Screen.ActiveControl = btnCancelar then
+    Exit;
+  
+    if Trim(edtQuantidade.Text) = '' then
+    begin
+      ShowMessage('Preencha a quantidade.');
+    end;
+end;
+
+end.

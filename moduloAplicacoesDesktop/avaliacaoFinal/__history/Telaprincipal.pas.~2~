@@ -1,0 +1,33 @@
+unit Telaprincipal;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Data.DB, Vcl.Grids, Vcl.DBGrids,
+  Datasnap.DBClient, Vcl.StdCtrls, Vcl.ExtCtrls;
+
+type
+  TfrmTelaPrincipal = class(TForm)
+    pnlMenu: TPanel;
+    pnlProdutos: TPanel;
+    btnNovo: TButton;
+    btnEditar: TButton;
+    btnRemover: TButton;
+    cdsProdutos: TClientDataSet;
+    dtsProdutos: TDataSource;
+    grdProdutos: TDBGrid;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmTelaPrincipal: TfrmTelaPrincipal;
+
+implementation
+
+{$R *.dfm}
+
+end.
