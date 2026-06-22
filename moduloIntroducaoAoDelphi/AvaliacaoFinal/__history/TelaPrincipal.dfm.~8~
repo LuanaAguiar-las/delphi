@@ -1,0 +1,105 @@
+object frmTelaPrincipal: TfrmTelaPrincipal
+  Left = 0
+  Top = 0
+  BorderIcons = [biSystemMenu]
+  BorderStyle = bsSingle
+  Caption = 'Calculadora de m'#233'dia escolar'
+  ClientHeight = 364
+  ClientWidth = 555
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  Position = poScreenCenter
+  TextHeight = 15
+  object lblNota1: TLabel
+    Left = 24
+    Top = 24
+    Width = 74
+    Height = 15
+    Caption = 'Primeira nota:'
+  end
+  object lblNota2: TLabel
+    Left = 24
+    Top = 80
+    Width = 76
+    Height = 15
+    Caption = 'Segunda nota:'
+  end
+  object lblNota3: TLabel
+    Left = 24
+    Top = 136
+    Width = 71
+    Height = 15
+    Caption = 'Terceira nota:'
+  end
+  object lblMedia: TLabel
+    Left = 24
+    Top = 236
+    Width = 97
+    Height = 25
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'Segoe UI'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object lblSituacao: TLabel
+    Left = 24
+    Top = 293
+    Width = 97
+    Height = 25
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -19
+    Font.Name = 'Segoe UI'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object edtNota1: TEdit
+    Left = 24
+    Top = 45
+    Width = 76
+    Height = 23
+    TabOrder = 0
+    OnExit = edtNota1Exit
+  end
+  object edtNota2: TEdit
+    Left = 24
+    Top = 101
+    Width = 76
+    Height = 23
+    TabOrder = 1
+    OnExit = edtNota2Exit
+  end
+  object edtNota3: TEdit
+    Left = 24
+    Top = 157
+    Width = 76
+    Height = 23
+    TabOrder = 2
+    OnExit = edtNota3Exit
+  end
+  object btnCalcularMedia: TButton
+    Left = 24
+    Top = 205
+    Width = 97
+    Height = 25
+    Caption = 'Calcular m'#233'dia'
+    TabOrder = 3
+    OnClick = btnCalcularMediaClick
+  end
+  object btnLimpar: TButton
+    Left = 152
+    Top = 205
+    Width = 113
+    Height = 25
+    Caption = 'Limpar resultado'
+    Enabled = False
+    TabOrder = 4
+    OnClick = btnLimparClick
+  end
+end

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2026/05/15 14:14:22.000.314,=C:\Delphi\Unit1.pas</Transaction>
+    <Transaction>2026/05/15 14:15:22.000.269,C:\Delphi\moduloIntroducaoDelphi\projetoAvaliacao\TelaPrincipal.dfm=C:\Delphi\Unit1.dfm</Transaction>
+    <Transaction>2026/05/15 14:15:22.000.269,C:\Delphi\moduloIntroducaoDelphi\projetoAvaliacao\TelaPrincipal.pas=C:\Delphi\Unit1.pas</Transaction>
+    <Transaction>2026/05/15 14:15:51.000.181,C:\Delphi\moduloIntroducaoDelphi\projetoAvaliacao\CalculaMediaEscolar.dproj=C:\Delphi\Project1.dproj</Transaction>
+  </Transactions>
+</BorlandProject>

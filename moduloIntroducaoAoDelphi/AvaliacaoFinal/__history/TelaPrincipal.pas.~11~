@@ -1,0 +1,131 @@
+unit TelaPrincipal;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+
+type
+  TfrmTelaPrincipal = class(TForm)
+    lblNota1: TLabel;
+    edtNota1: TEdit;
+    lblNota2: TLabel;
+    edtNota2: TEdit;
+    lblNota3: TLabel;
+    edtNota3: TEdit;
+    btnCalcularMedia: TButton;
+    lblMedia: TLabel;
+    lblSituacao: TLabel;
+    btnLimpar: TButton;
+    procedure edtNota1Exit(Sender: TObject);
+    procedure edtNota2Exit(Sender: TObject);
+    procedure edtNota3Exit(Sender: TObject);
+    procedure btnCalcularMediaClick(Sender: TObject);
+    procedure btnLimparClick(Sender: TObject);
+  private
+    { Private declarations }
+    var nota1, nota2, nota3, media: double;
+    var mediaCalculada: boolean;
+    procedure limparCampos;
+
+  public
+    { Public declarations }
+  end;
+
+var
+  frmTelaPrincipal: TfrmTelaPrincipal;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmTelaPrincipal.limparCampos;
+begin
+  if mediaCalculada then
+  begin
+    edtNota1.Clear;
+    edtNota2.Clear;
+    edtNota3.Clear;
+    lblMedia.Caption := '';
+    lblSituacao.Caption := '';
+    mediaCalculada := false;
+  end;
+
+end;
+
+procedure TfrmTelaPrincipal.btnCalcularMediaClick(Sender: TObject);
+begin
+  if (edtNota1.Text = '') or (edtNota2.Text = '') or  (edtNota3.Text = '')  then
+  begin
+    ShowMessage('Informe todas as notas para calcular a média');
+  end;
+
+
+
+  media := (nota1 + nota2 + nota3)/3;
+
+  if media >= 7 then
+  begin
+    lblMedia.Caption := ('A média do aluno é ' + FormatFloat('0.00', media) + '.');
+    lblSituacao.Caption := ('Aprovado!!!');
+    mediaCalculada := true;
+    btnLimpar.Enabled := True;
+  end
+
+  else if (media >= 5) and (media < 7) then
+  begin
+    lblMedia.Caption := ('A média do aluno é ' + FormatFloat('0.00', media) + '.');
+    lblSituacao.Caption := ('Recuperação!!!');
+    mediaCalculada := true;
+    btnLimpar.Enabled := True;
+  end
+
+  else
+  begin
+    lblMedia.Caption := ('A média do aluno é ' + FormatFloat('0.00', media) + '.');
+    lblSituacao.Caption := ('Reprovado!!!');
+    mediaCalculada := true;
+    btnLimpar.Enabled := True;
+  end;
+
+
+end;
+
+procedure TfrmTelaPrincipal.btnLimparClick(Sender: TObject);
+begin
+  limparCampos;
+  btnLimpar.Enabled := False;
+end;
+
+procedure TfrmTelaPrincipal.edtNota1Exit(Sender: TObject);
+begin
+  if (not TryStrToFloat(edtNota1.Text, nota1)) or (nota1 < 0) or (nota1 > 10) then
+  begin
+    ShowMessage('Digite uma nota válida entre 0 e 10');
+    edtnota1.Clear;
+    edtnota1.SetFocus;
+  end;
+end;
+
+procedure TfrmTelaPrincipal.edtNota2Exit(Sender: TObject);
+begin
+  if (not TryStrToFloat(edtNota2.Text, nota2)) or (nota2 < 0) or (nota2 > 10) then
+  begin
+    ShowMessage('Digite uma nota válida entre 0 e 10');
+    edtnota2.Clear;
+    edtnota2.SetFocus;
+  end;
+end;
+
+procedure TfrmTelaPrincipal.edtNota3Exit(Sender: TObject);
+begin
+  if (not TryStrToFloat(edtNota3.Text, nota3)) or (nota3 < 0) or (nota3 > 10) then
+  begin
+    ShowMessage('Digite uma nota válida entre 0 e 10');
+    edtnota3.Clear;
+    edtnota3.SetFocus;
+  end;
+end;
+
+end.
