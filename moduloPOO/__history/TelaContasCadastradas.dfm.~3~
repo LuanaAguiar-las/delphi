@@ -1,0 +1,86 @@
+object frmTelaContasCadastradas: TfrmTelaContasCadastradas
+  Left = 0
+  Top = 0
+  Caption = 'Contas cadastradas'
+  ClientHeight = 441
+  ClientWidth = 624
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  Position = poOwnerFormCenter
+  OnCreate = FormCreate
+  TextHeight = 15
+  object pnlBotoes: TPanel
+    Left = 0
+    Top = 0
+    Width = 624
+    Height = 97
+    Align = alTop
+    TabOrder = 0
+    object btnCadastrarConta: TButton
+      Left = 0
+      Top = 0
+      Width = 145
+      Height = 97
+      Caption = 'Novo'
+      TabOrder = 0
+      OnClick = btnCadastrarContaClick
+    end
+    object btnEditarConta: TButton
+      Left = 151
+      Top = 0
+      Width = 145
+      Height = 97
+      Caption = 'Editar '
+      TabOrder = 1
+      OnClick = btnEditarContaClick
+    end
+    object btnExcluirConta: TButton
+      Left = 302
+      Top = 0
+      Width = 145
+      Height = 97
+      Caption = 'Excluir'
+      TabOrder = 2
+    end
+  end
+  object pnlContas: TPanel
+    Left = 0
+    Top = 97
+    Width = 624
+    Height = 344
+    Align = alClient
+    TabOrder = 1
+    ExplicitLeft = 32
+    ExplicitTop = 248
+    ExplicitWidth = 185
+    ExplicitHeight = 41
+    object DBGrid1: TDBGrid
+      Left = 0
+      Top = 6
+      Width = 624
+      Height = 339
+      DataSource = dtsContasCadastradas
+      TabOrder = 0
+      TitleFont.Charset = DEFAULT_CHARSET
+      TitleFont.Color = clWindowText
+      TitleFont.Height = -12
+      TitleFont.Name = 'Segoe UI'
+      TitleFont.Style = []
+    end
+  end
+  object dtsContasCadastradas: TDataSource
+    DataSet = cdsContasCadastradas
+    Left = 504
+    Top = 145
+  end
+  object cdsContasCadastradas: TClientDataSet
+    Aggregates = <>
+    Params = <>
+    Left = 416
+    Top = 105
+  end
+end

@@ -1,0 +1,34 @@
+unit TelaTransacoes;
+
+interface
+
+uses
+  Modelo.Conta,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+
+type
+  TfrmTransacoes = class(TForm)
+    grpCadastroConta: TGroupBox;
+    edtClienteCadastrado: TEdit;
+    edtNumeroContaCadastrada: TEdit;
+    grpTransacoes: TGroupBox;
+    memoInfoConta: TMemo;
+    btnSaldo: TButton;
+    btnDepositar: TButton;
+    btnSacar: TButton;
+  private
+    { Private declarations }
+    FContaLogada: TConta ****aqui
+  public
+    { Public declarations }
+  end;
+
+var
+  frmTransacoes: TfrmTransacoes;
+
+implementation
+
+{$R *.dfm}
+
+end.

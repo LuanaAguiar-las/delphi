@@ -1,0 +1,151 @@
+unit TelaContasCadastradas;
+
+interface
+
+uses
+  Modelo.Conta,
+  TelaCadastroConta,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, Data.DB,
+  Datasnap.DBClient, Vcl.Grids, Vcl.DBGrids;
+
+type
+  TfrmTelaContasCadastradas = class(TForm)
+    pnlBotoes: TPanel;
+    pnlContas: TPanel;
+    btnCadastrarConta: TButton;
+    btnEditarConta: TButton;
+    btnExcluirConta: TButton;
+    DBGrid1: TDBGrid;
+    dtsContasCadastradas: TDataSource;
+    cdsContasCadastradas: TClientDataSet;
+    procedure FormCreate(Sender: TObject);
+    procedure btnCadastrarContaClick(Sender: TObject);
+    procedure btnEditarContaClick(Sender: TObject);
+    procedure btnExcluirContaClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+    procedure AtualizaEstadoBotao;
+
+  public
+    { Public declarations }
+    class procedure ExibirTela;
+    class function ObterDataSetContas: TClientDataSet;
+  end;
+
+var
+  frmTelaContasCadastradas: TfrmTelaContasCadastradas;
+
+
+implementation
+
+{$R *.dfm}
+
+var
+  FInstanciaGlobal: TfrmTelaContasCadastradas;
+
+procedure TfrmTelaContasCadastradas.btnCadastrarContaClick(Sender: TObject);
+var
+  lNovaConta: Tconta;
+begin
+  if TfrmCadastroEdicaoConta.Novo(Self, lNovaConta) then
+  begin
+    try
+      cdsContasCadastradas.Append;
+      cdsContasCadastradas.FieldByName('Nome').AsString := lNovaConta.Nome;
+      cdsContasCadastradas.FieldByName('Número da conta').AsString := lNovaConta.NumeroConta;
+      cdsContasCadastradas.FieldByName('Senha').AsString := lNovaConta.Senha;
+      cdsContasCadastradas.Post;
+    finally
+    lNovaConta.Free;
+
+    end;
+    AtualizaEstadoBotao;
+  end;
+end;
+
+procedure TfrmTelaContasCadastradas.btnEditarContaClick(Sender: TObject);
+var
+  lContaAtual: Tconta;
+begin
+  if cdsContasCadastradas.IsEmpty then
+  Exit;
+
+  lContaAtual := TConta.Create(
+  cdsContasCadastradas.FieldByName('Nome').AsString,
+  cdsContasCadastradas.FieldByName('Número da conta').AsString
+  );
+
+  try
+    if TfrmCadastroEdicaoConta.Editar(Self, lContaAtual) then
+    begin
+      cdsContasCadastradas.Edit;
+      cdsContasCadastradas.FieldByName('Nome').AsString := lContaAtual.Nome;
+      cdsContasCadastradas.FieldByName('Número da conta').AsString := lContaAtual.NumeroConta;
+      cdsContasCadastradas.FieldByName('Senha').AsString := lContaAtual.Senha;
+      cdsContasCadastradas.Post;
+    end;
+  finally
+  lContaAtual.Free;
+
+  end;
+end;
+
+procedure TfrmTelaContasCadastradas.btnExcluirContaClick(Sender: TObject);
+begin
+  if cdsContasCadastradas.IsEmpty then
+  Exit;
+
+  if MessageDlg('Deseja excluir a conta selecionada?', mtConfirmation, [mbYes, MbNo], 0) = mrYes then
+  begin
+    cdsContasCadastradas.Delete;
+    AtualizaEstadoBotao;
+  end;
+
+end;
+
+class procedure TfrmTelaContasCadastradas.ExibirTela;
+begin
+  if FInstanciaGlobal = nil then
+  FInstanciaGlobal := TfrmTelaContasCadastradas.Create(nil);
+
+  FInstanciaGlobal.ShowModal;
+end;
+
+class function TfrmTelaContasCadastradas.ObterDataSetContas: TClientDataSet;
+begin
+  if FInstanciaGlobal = nil then
+  FInstanciaGlobal := TfrmTelaContasCadastradas.Create(nil);
+
+  Result := FInstanciaGlobal.cdsContasCadastradas;
+end;
+
+procedure TfrmTelaContasCadastradas.FormCreate(Sender: TObject);
+begin
+  cdsContasCadastradas.FieldDefs.Clear;
+  cdsContasCadastradas.FieldDefs.Add('Nome', ftString, 80);
+  cdsContasCadastradas.FieldDefs.Add('Número da conta', ftString, 30);
+  cdsContasCadastradas.FieldDefs.Add('Senha', ftString, 10);
+  cdsContasCadastradas.CreateDataSet;
+end;
+
+procedure TfrmTelaContasCadastradas.FormShow(Sender: TObject);
+begin
+  AtualizaEstadoBotao;
+end;
+
+procedure TfrmTelaContasCadastradas.AtualizaEstadoBotao;
+var lTemRegistro: Boolean;
+begin
+  lTemRegistro := not cdsContasCadastradas.IsEmpty;
+  btnEditarConta.Enabled := lTemRegistro;
+  btnExcluirConta.Enabled := lTemregistro;
+end;
+
+initialization
+finalization
+  if Assigned(FinstanciaGlobal) then
+  FInstanciaGlobal.Free;
+
+end.

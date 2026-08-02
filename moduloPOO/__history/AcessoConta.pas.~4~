@@ -1,0 +1,134 @@
+unit AcessoConta;
+
+interface
+
+uses
+  Modelo.Conta, Servico.Autenticacao,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Datasnap.DBClient;
+
+type
+  TfrmAcessoConta = class(TForm)
+    cmbSelecaoConta: TComboBox;
+    Label1: TLabel;
+    btnAcessar: TButton;
+    edtSenha: TEdit;
+    lblSenha: TLabel;
+    procedure btnAcessarClick(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+  private
+    { Private declarations }
+    FContaAutenticada: TConta;
+    procedure CarregarContasNoCombobox(pDataSet: TClientDataSet);
+  public
+    { Public declarations }
+    property ContaAutenticada: TConta read FContaAutenticada;
+
+    class function SelecionarEAutenticar(pOwner: TComponent; pDataSet: TClientDataSet; out AContaLogada: TConta): Boolean;
+  end;
+
+var
+  frmAcessoConta: TfrmAcessoConta;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmAcessoConta.btnAcessarClick(Sender: TObject);
+var
+  lContaSelecionada: TConta;
+  lMensagemErro: string;
+begin
+  if cmbSelecaoConta.ItemIndex = -1 then
+  begin
+    ShowMessage('Selecione uma conta para acessar!');
+    Exit;
+  end;
+
+  lContaSelecionada := TConta(cmbSelecaoConta.Items.Objects[cmbSelecaoConta.ItemIndex]);
+  if not TAutenticaConta.ValidaSenha(lContaSelecionada, edtSenha.Text, lMensagemErro) then
+  begin
+    ShowMessage(lMensagemErro);
+    edtSenha.Clear;
+    edtSenha.SetFocus;
+    Exit;
+  end;
+  FContaAutenticada := lContaSelecionada;
+  Self.ModalResult := mrOk;
+
+end;
+
+procedure TfrmAcessoConta.CarregarContasNoCombobox(pDataSet: TClientDataSet);
+var lConta: TConta;
+
+begin
+  cmbSelecaoConta.Items.Clear;
+
+  pDataSet.First;
+  while not pDataSet.Eof do
+  begin
+    lConta := Tconta.Create(
+    pDataSet.FieldByName('Nome').AsString,
+    pDataSet.FieldByName('Número da conta').AsString,
+    pDataSet.FieldByName('Senha').AsString
+    );
+
+    cmbSelecaoConta.Items.AddObject(
+    Format('%s - Conta: %s', [lConta.Nome, lConta.NumeroConta]), lConta
+    ) ;
+
+    pDataSet.Next;
+  end;
+
+  if cmbSelecaoConta.Items.Count > 0 then
+  cmbSelecaoConta.ItemIndex := 0;
+end;
+
+procedure TfrmAcessoConta.FormShow(Sender: TObject);
+begin
+  edtSenha.Clear;
+  edtSenha.SetFocus;
+end;
+
+class function TfrmAcessoConta.SelecionarEAutenticar(pOwner: TComponent; pDataSet: TClientDataSet; out AContaLogada: TConta): Boolean;
+var
+  Form: TfrmAcessoConta;
+  i: integer;
+  lContaItem: TConta;
+
+begin
+  Result := False;
+  AContaLogada := nil;
+
+  if (pDataSet = nil) or pDataSet.IsEmpty then
+  begin
+    ShowMessage('Não há conta cadastrada no sistema');
+    Exit;
+  end;
+
+  Form := TfrmAcessoConta.Create(pOwner);
+  try
+    Form.CarregarContasNoCombobox(pDataSet);
+
+    if Form.ShowModal = mrOk then
+    begin
+      AContaLogada := Form.FContaAutenticada;
+      Result := True;
+    end;
+
+  finally
+    for i := 0 to Form.cmbSelecaoConta.Items.Count do
+      begin
+        lContaItem := TConta(Form.cmbSelecaoConta.Items.Objects[i]);
+
+        if (lContaItem <> nil) and (lContaItem <> AContaLogada) then
+        lContaItem.Free;
+      end;
+
+    Form.Free;
+
+  end;
+
+end;
+
+end.

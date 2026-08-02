@@ -1,0 +1,56 @@
+unit TelaPrincipal;
+
+interface
+
+uses
+  TelaContasCadastradas, Modelo.Conta, AcessoConta, TelaTransacoes,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls, Datasnap.DBClient;
+
+type
+  TfrmTelaPrincipal = class(TForm)
+    pnlPrincipal: TPanel;
+    plnBotoes: TPanel;
+    btnContas: TButton;
+    btnTransacoes: TButton;
+    lblBemVindo: TLabel;
+    procedure btnContasClick(Sender: TObject);
+    procedure btnTransacoesClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmTelaPrincipal: TfrmTelaPrincipal;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmTelaPrincipal.btnContasClick(Sender: TObject);
+begin
+  TfrmTelaContasCadastradas.ExibirTela;
+end;
+
+procedure TfrmTelaPrincipal.btnTransacoesClick(Sender: TObject);
+var lContaLogada: TConta;
+
+begin
+  lContaLogada := nil;
+
+  if TfrmAcessoConta.SelecionarEAutenticar(Self, TfrmTelaContasCadastradas.ObterDataSetContas, lContaLogada) then
+  begin
+    try
+      TfrmTransacoes.ExibirTela(Self, lContaLogada);
+    finally
+      if Assigned(lContaLogada) then
+      lContaLogada.Free;
+    end;
+  end;
+
+
+end;
+
+end.

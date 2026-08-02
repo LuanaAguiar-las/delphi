@@ -1,0 +1,33 @@
+unit TelaContasCadastradas;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, Data.DB,
+  Datasnap.DBClient, Vcl.Grids, Vcl.DBGrids;
+
+type
+  TfrmTelaContasCadastradas = class(TForm)
+    pnlBotoes: TPanel;
+    pnlContas: TPanel;
+    btnCadastrarConta: TButton;
+    btnEditarConta: TButton;
+    btnExcluirConta: TButton;
+    DBGrid1: TDBGrid;
+    dtsContasCadastradas: TDataSource;
+    cdsContasCadastradas: TClientDataSet;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmTelaContasCadastradas: TfrmTelaContasCadastradas;
+
+implementation
+
+{$R *.dfm}
+
+end.

@@ -1,0 +1,54 @@
+unit TelaContasCadastradas;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, Data.DB,
+  Datasnap.DBClient, Vcl.Grids, Vcl.DBGrids;
+
+type
+  TfrmTelaContasCadastradas = class(TForm)
+    pnlBotoes: TPanel;
+    pnlContas: TPanel;
+    btnCadastrarConta: TButton;
+    btnEditarConta: TButton;
+    btnExcluirConta: TButton;
+    DBGrid1: TDBGrid;
+    dtsContasCadastradas: TDataSource;
+    cdsContasCadastradas: TClientDataSet;
+    procedure FormCreate(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    class procedure ExibirTela;
+  end;
+
+var
+  frmTelaContasCadastradas: TfrmTelaContasCadastradas;
+
+implementation
+
+{$R *.dfm}
+
+class procedure TfrmTelaContasCadastradas.ExibirTela;
+var Form: TFrmTelaContasCadastradas;
+begin
+  Form := TfrmTelaContasCadastradas.Create(nil);
+
+  try
+    Form.ShowModal;
+  finally
+    Form.Free;
+  end;
+end;
+
+procedure TfrmTelaContasCadastradas.FormCreate(Sender: TObject);
+begin
+  cdsContasCadastradas.FieldDefs.Add('Nome', ftString, 80);
+  cdsContasCadastradas.FieldDefs.Add('Número da conta', ftString, 30);
+  cdsContasCadastradas.CreateDataSet;
+end;
+
+end.

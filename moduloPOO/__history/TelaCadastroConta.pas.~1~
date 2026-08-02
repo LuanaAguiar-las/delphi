@@ -1,0 +1,32 @@
+unit TelaCadastroConta;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+
+type
+  TfrmCadastroEdicaoConta = class(TForm)
+    lblNome: TLabel;
+    lblNumero: TLabel;
+    lblSenha: TLabel;
+    edtNome: TEdit;
+    edtNumeroConta: TEdit;
+    edtSenha: TEdit;
+    bntGravar: TButton;
+    btnFechar: TButton;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCadastroEdicaoConta: TfrmCadastroEdicaoConta;
+
+implementation
+
+{$R *.dfm}
+
+end.

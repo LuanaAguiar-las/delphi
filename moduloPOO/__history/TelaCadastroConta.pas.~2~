@@ -1,0 +1,87 @@
+unit TelaCadastroConta;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Datasnap.DBClient;
+
+type
+  TfrmCadastroEdicaoConta = class(TForm)
+    lblNome: TLabel;
+    lblNumero: TLabel;
+    lblSenha: TLabel;
+    edtNome: TEdit;
+    edtNumeroConta: TEdit;
+    edtSenha: TEdit;
+    bntGravar: TButton;
+    btnFechar: TButton;
+    procedure bntGravarClick(Sender: TObject);
+    procedure btnFecharClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+    class procedure Novo(pDataSet: TClientDataSet; pOwner: TComponent);
+    class procedure Editar(pDataSet: TClientDataSet; pOwner: TComponent);
+  end;
+
+var
+  frmCadastroEdicaoConta: TfrmCadastroEdicaoConta;
+
+implementation
+
+{$R *.dfm}
+
+class procedure TfrmCadastroEdicaoConta.Novo(pDataSet: TClientDataSet; pOwner: TComponent);
+var lfrmCadastroEdicaoConta: TfrmCadastroEdicaoConta;
+
+begin
+  lfrmCadastroEdicaoConta := TfrmCadastroEdicaoConta.Create(pOwner);
+  try
+    if lfrmCadastroEdicaoConta.ShowModal = mrOk then
+    begin
+    pDataSet.Append;
+    pDataSet.FieldByName('Nome').AsString := lfrmCadastroEdicaoConta.edtNome.Text;
+    pDataSet.FieldByName('Número da conta').AsString := lfrmCadastroEdicaoConta.edtNumeroConta.Text;
+    pDataSet.Post;
+    end;
+  finally
+    lfrmCadastroEdicaoConta.Free;
+  end;
+
+end;
+
+procedure TfrmCadastroEdicaoConta.bntGravarClick(Sender: TObject);
+begin
+  Self.ModalResult := MrOk;
+end;
+
+procedure TfrmCadastroEdicaoConta.btnFecharClick(Sender: TObject);
+begin
+  Self.ModalResult := MrCancel;
+end;
+
+class procedure TfrmCadastroEdicaoConta.Editar(pDataSet: TClientDataSet; pOwner: TComponent);
+var lfrmCadastroEdicaoConta: TfrmCadastroEdicaoConta;
+begin
+  lfrmCadastroEdicaoConta := TfrmCadastroEdicaoConta.Create(pOwner);
+  try
+    lfrmCadastroEdicaoConta.edtNome.Text := pDataSet.FieldByName('Nome').AsString;
+    lfrmCadastroEdicaoConta.edtNumeroConta.Text := pDataSet.FieldByName('Número da conta').AsString;
+
+    if lfrmCadastroEdicaoConta.ShowModal = MrOk then
+    begin
+      pDataSet.Edit;
+      pDataSet.FieldByName('Nome').AsString := lfrmCadastroEdicaoConta.edtNome.Text;
+      pDataSet.FieldByName('Número da conta').AsString := lfrmCadastroEdicaoConta.edtNumeroConta.Text;
+      pDataSet.Post;
+    end;
+  finally
+    lfrmCadastroEdicaoConta.Free;
+  end;
+
+end;
+
+
+end.

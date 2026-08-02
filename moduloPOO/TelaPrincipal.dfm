@@ -1,0 +1,64 @@
+object frmTelaPrincipal: TfrmTelaPrincipal
+  Left = 0
+  Top = 0
+  Caption = 'Conta banc'#225'ria'
+  ClientHeight = 441
+  ClientWidth = 624
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  Position = poScreenCenter
+  TextHeight = 15
+  object pnlPrincipal: TPanel
+    Left = 0
+    Top = 97
+    Width = 624
+    Height = 344
+    Align = alClient
+    TabOrder = 0
+    object lblBemVindo: TLabel
+      Left = 151
+      Top = 107
+      Width = 364
+      Height = 86
+      Caption = 'Bem-vindo!!!'
+      Color = clHotLight
+      Font.Charset = DEFAULT_CHARSET
+      Font.Color = clHotLight
+      Font.Height = -64
+      Font.Name = 'Segoe UI'
+      Font.Style = []
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object plnBotoes: TPanel
+    Left = 0
+    Top = 0
+    Width = 624
+    Height = 97
+    Align = alTop
+    TabOrder = 1
+    object btnContas: TButton
+      Left = 0
+      Top = 0
+      Width = 145
+      Height = 97
+      Caption = 'Cadastro contas'
+      TabOrder = 0
+      OnClick = btnContasClick
+    end
+    object btnTransacoes: TButton
+      Left = 151
+      Top = 0
+      Width = 145
+      Height = 97
+      Caption = 'Transa'#231#245'es'
+      TabOrder = 1
+      OnClick = btnTransacoesClick
+    end
+  end
+end

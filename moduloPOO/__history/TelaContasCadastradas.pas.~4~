@@ -1,0 +1,87 @@
+unit TelaContasCadastradas;
+
+interface
+
+uses
+  TelaCadastroConta,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, Data.DB,
+  Datasnap.DBClient, Vcl.Grids, Vcl.DBGrids;
+
+type
+  TfrmTelaContasCadastradas = class(TForm)
+    pnlBotoes: TPanel;
+    pnlContas: TPanel;
+    btnCadastrarConta: TButton;
+    btnEditarConta: TButton;
+    btnExcluirConta: TButton;
+    DBGrid1: TDBGrid;
+    dtsContasCadastradas: TDataSource;
+    cdsContasCadastradas: TClientDataSet;
+    procedure FormCreate(Sender: TObject);
+    procedure btnCadastrarContaClick(Sender: TObject);
+    procedure btnEditarContaClick(Sender: TObject);
+    procedure btnExcluirContaClick(Sender: TObject);
+  private
+    { Private declarations }
+    procedure AtualizaEstadoBotao;
+
+  public
+    { Public declarations }
+    class procedure ExibirTela;
+  end;
+
+var
+  frmTelaContasCadastradas: TfrmTelaContasCadastradas;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmTelaContasCadastradas.btnCadastrarContaClick(Sender: TObject);
+begin
+  TfrmCadastroEdicaoConta.Novo(cdsContasCadastradas, Self);
+  AtualizaEstadoBotao;
+end;
+
+procedure TfrmTelaContasCadastradas.btnEditarContaClick(Sender: TObject);
+begin
+  TfrmCadastroEdicaoConta.Editar(cdsContasCadastradas, Self);
+  AtualizaEstadoBotao;
+end;
+
+procedure TfrmTelaContasCadastradas.btnExcluirContaClick(Sender: TObject);
+begin
+  cdsContasCadastradas.Delete;
+  AtualizaEstadoBotao;
+end;
+
+class procedure TfrmTelaContasCadastradas.ExibirTela;
+var Form: TFrmTelaContasCadastradas;
+begin
+  Form := TfrmTelaContasCadastradas.Create(nil);
+
+  try
+    Form.ShowModal;
+  finally
+    Form.Free;
+  end;
+end;
+
+procedure TfrmTelaContasCadastradas.FormCreate(Sender: TObject);
+begin
+  cdsContasCadastradas.FieldDefs.Clear;
+  cdsContasCadastradas.FieldDefs.Add('Nome', ftString, 80);
+  cdsContasCadastradas.FieldDefs.Add('Número da conta', ftString, 30);
+  cdsContasCadastradas.CreateDataSet;
+end;
+
+procedure TfrmTelaContasCadastradas.AtualizaEstadoBotao;
+var lTemRegistro: Boolean;
+begin
+  lTemRegistro := not cdsContasCadastradas.IsEmpty;
+  btnEditarConta.Enabled := lTemRegistro;
+  btnExcluirConta.Enabled := lTemregistro;
+end;
+
+end.

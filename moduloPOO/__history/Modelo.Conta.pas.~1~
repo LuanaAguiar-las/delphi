@@ -1,0 +1,50 @@
+unit Modelo.Conta;
+
+interface
+
+uses
+  SysUtils;
+
+type
+  TConta = class
+
+  private
+    FNome: string;
+    FNumeroConta: string;
+    FSenha: string;
+  public
+    property Nome: string read FNome write FNome;
+    property NumeroConta: string read FNumeroConta write FNumeroConta;
+    property Senha: string read FSenha write FSenha;
+
+    function ValidaVazio(out AMensagemErro: string): Boolean;
+  end;
+
+implementation
+
+function TConta.ValidaVazio(out AMensagemErro: string): Boolean;
+begin
+  Result := false;
+
+  if Trim(FNome) = '' then
+  begin
+    AMensagemErro := 'Informe o nome.';
+    Exit;
+  end;
+
+  if Trim(FNumeroConta) = '' then
+  begin
+    AMensagemErro := 'Informe o número da conta';
+    Exit;
+  end;
+
+  if Trim(FSenha) = '' then
+  begin
+    AMensagemErro := 'Informe a senha.';
+    Exit;
+  end;
+  Result := true;
+
+end;
+
+end.

@@ -1,0 +1,24 @@
+program ContaBancaria;
+
+uses
+  Vcl.Forms,
+  TelaPrincipal in 'TelaPrincipal.pas' {frmTelaPrincipal},
+  TelaContasCadastradas in 'TelaContasCadastradas.pas' {frmTelaContasCadastradas},
+  TelaCadastroConta in 'TelaCadastroConta.pas' {frmCadastroEdicaoConta},
+  AcessoConta in 'AcessoConta.pas' {frmAcessoConta},
+  TelaTransacoes in 'TelaTransacoes.pas' {frmTransacoes},
+  Modelo.Conta in 'Modelo.Conta.pas',
+  Servico.Autenticacao in 'Servico.Autenticacao.pas';
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TfrmTelaPrincipal, frmTelaPrincipal);
+  Application.CreateForm(TfrmTelaContasCadastradas, frmTelaContasCadastradas);
+  Application.CreateForm(TfrmCadastroEdicaoConta, frmCadastroEdicaoConta);
+  Application.CreateForm(TfrmAcessoConta, frmAcessoConta);
+  Application.CreateForm(TfrmTransacoes, frmTransacoes);
+  Application.Run;
+end.

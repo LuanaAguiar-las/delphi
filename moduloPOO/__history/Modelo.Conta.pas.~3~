@@ -1,0 +1,74 @@
+unit Modelo.Conta;
+
+interface
+
+uses
+  SysUtils;
+
+type
+  TConta = class
+
+  private
+    FNome: string;
+    FNumeroConta: string;
+    FSenha: string;
+  public
+    property Nome: string read FNome write FNome;
+    property NumeroConta: string read FNumeroConta write FNumeroConta;
+    property Senha: string read FSenha write FSenha;
+
+    constructor Create; overload;
+    constructor Create(const ANome, ANumeroConta: string); overload;
+    constructor Create(const ANome, ANumeroConta, ASenha: string); overload;
+
+    function ValidaVazio(out AMensagemErro: string): Boolean;
+  end;
+
+implementation
+
+function TConta.ValidaVazio(out AMensagemErro: string): Boolean;
+begin
+  Result := false;
+
+  if Trim(FNome) = '' then
+  begin
+    AMensagemErro := 'Informe o nome.';
+    Exit;
+  end;
+
+  if Trim(FNumeroConta) = '' then
+  begin
+    AMensagemErro := 'Informe o número da conta';
+    Exit;
+  end;
+
+  if Trim(FSenha) = '' then
+  begin
+    AMensagemErro := 'Informe a senha.';
+    Exit;
+  end;
+  Result := true;
+
+end;
+
+constructor TConta.Create;
+begin
+  inherited Create;
+  FNome := '';
+  FNumeroConta := '';
+  FSenha := '';
+end;
+
+constructor TConta.Create(const ANome, ANumeroConta: string);
+begin
+  Create;
+  FNome := ANome;
+  FNumeroConta := ANumeroConta;
+end;
+
+constructor TConta.Create(const ANome, ANumeroConta, ASenha: string);
+begin
+  Create(ANome, ANumeroConta);
+  FSenha := ASenha;
+end;
+end.
