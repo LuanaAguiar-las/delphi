@@ -1,0 +1,82 @@
+unit TelaPrincipal;
+
+interface
+
+uses
+  Service.Api.Paises, Model.Paises,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls;
+
+type
+  TfrmTelaPrincipal = class(TForm)
+    pnlConsultarPais: TPanel;
+    pnlInfoPais: TPanel;
+    lblPais: TLabel;
+    btnConsultar: TButton;
+    edtPais: TEdit;
+    lblNomeOficial: TLabel;
+    lblCapital: TLabel;
+    lblRegiao: TLabel;
+    lblPopulacao: TLabel;
+    lblMoeda: TLabel;
+    edtNomeOficial: TEdit;
+    edtCapital: TEdit;
+    edtRegiao: TEdit;
+    edtPopulacao: TEdit;
+    edtMoeda: TEdit;
+    procedure btnConsultarClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmTelaPrincipal: TfrmTelaPrincipal;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmTelaPrincipal.btnConsultarClick(Sender: TObject);
+var
+  PaisesApiService: TPaisesApiService;
+  PaisesModel: TPaisesModel;
+begin
+  if Trim(edtPais.Text) = '' then
+    begin
+      MessageDlg('Digite o país', mtWarning, [mbOK], 0);
+      Exit;
+    end;
+
+    PaisesApiService := TPaisesApiService.Create;
+    PaisesModel := nil;
+    try
+      try
+        PaisesModel := PaisesApiService.ObterPais(Trim(edtPais.Text));
+
+        edtNomeOficial.Text := PaisesModel.Nome;
+        edtCapital.Text := PaisesModel.Capital;
+        edtRegiao.Text := PaisesModel.Regiao;
+        edtPopulacao.Text := PaisesModel.Populacao;
+        edtMoeda.Text := PaisesModel.Moeda;
+      except
+        on E: Exception do
+          begin
+            edtNomeOficial.Clear;
+            edtCapital.Clear;
+            edtRegiao.Clear;
+            edtPopulacao.Clear;
+            edtMoeda.Clear;
+
+          MessageDlg(E.Message, mtError, [mbOK], 0);
+          end;
+      end;
+    finally
+    if Assigned(PaisesModel) then
+      PaisesModel.Free;
+      PaisesApiService.Free;
+    end;
+end;
+
+end.

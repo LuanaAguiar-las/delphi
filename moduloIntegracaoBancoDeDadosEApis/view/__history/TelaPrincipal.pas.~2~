@@ -1,0 +1,39 @@
+unit TelaPrincipal;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ExtCtrls;
+
+type
+  TfrmTelaPrincipal = class(TForm)
+    pnlConsultarPais: TPanel;
+    pnlInfoPais: TPanel;
+    lblPais: TLabel;
+    btnConsultar: TButton;
+    edtPais: TEdit;
+    lblNomeOficial: TLabel;
+    lblCapital: TLabel;
+    lblRegiao: TLabel;
+    lblPopulacao: TLabel;
+    lblMoeda: TLabel;
+    edtNomeOficial: TEdit;
+    edtCapital: TEdit;
+    edtRegiao: TEdit;
+    edtPopulacao: TEdit;
+    edtMoeda: TEdit;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmTelaPrincipal: TfrmTelaPrincipal;
+
+implementation
+
+{$R *.dfm}
+
+end.

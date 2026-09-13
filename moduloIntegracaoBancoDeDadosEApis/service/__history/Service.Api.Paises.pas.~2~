@@ -1,0 +1,45 @@
+unit Service.Api.Paises;
+
+interface
+
+uses
+  Model.Paises,
+  System.JSON, REST.Client, REST.Types;
+
+type
+  TPaisesAPiService = class
+
+  private
+    FClient: TFClient;
+    FRequest: TFRequest;
+    FResponse: TFResponse;
+
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function ObterPais(Pais: string): TPaisesModel;
+  end;
+
+implementation
+
+{ TPaisesAPiService }
+
+constructor TPaisesAPiService.Create;
+begin
+  FClient := TRESTClient.Create('https://countries.dev/name/');
+  FRequest := TRESTRequest.Create(nil);
+  FResponse := TRESTResponse.Create(nil);
+
+  FRequest.Client := FClient;
+  FRequest.Response := FResponse;
+end;
+
+destructor TPaisesAPiService.Destroy;
+begin
+  FClient.Free;
+  FRequest.Free;
+  FResponse.Free;
+  inherited;
+end;
+
+end.

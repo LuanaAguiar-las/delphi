@@ -1,0 +1,96 @@
+unit Service.Api.Paises;
+
+interface
+
+uses
+  Model.Paises,
+  System.JSON, System.Classes, System.SysUtils, REST.Client, REST.Types;
+
+type
+  TPaisesApiService = class
+
+  private
+    FClient: TRESTClient;
+    FRequest: TRESTRequest;
+    FResponse: TRESTResponse;
+
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function ObterPais(Pais: string): TPaisesModel;
+  end;
+
+implementation
+
+{ TPaisesApiService }
+
+constructor TPaisesAPiService.Create;
+begin
+  FClient := TRESTClient.Create('https://countries.dev/name/');
+  FRequest := TRESTRequest.Create(nil);
+  FResponse := TRESTResponse.Create(nil);
+
+  FRequest.Client := FClient;
+  FRequest.Response := FResponse;
+end;
+
+destructor TPaisesAPiService.Destroy;
+begin
+  FClient.Free;
+  FRequest.Free;
+  FResponse.Free;
+  inherited;
+end;
+
+function TPaisesApiService.ObterPais(Pais: string): TPaisesModel;
+var
+  JSONArray: TJSONArray;
+  JSONObject: TJSONObject;
+  CurrenciesArray: TJSONArray;
+  CurrencyObj: TJSONObject;
+  NomeMoeda: string;
+begin
+  try
+    FRequest.Resource := Pais;
+    FRequest.Method := rmGET;
+    FRequest.Execute;
+
+    if FResponse.StatusCode <> 200 then
+      raise Exception.CreateFmt('Erro na requisição: %d - %s',
+        [FResponse.StatusCode, FResponse.StatusText]);
+
+    JSONArray := TJSONObject.ParseJSONValue(FResponse.Content) as TJSONArray;
+
+    try
+      if (JSONArray = nil) or (JSONArray.Count = 0) then
+        raise Exception.Create('País não encontrado!');
+
+      JSONObject := JSONArray.Items[0] as TJSONObject;
+
+    NomeMoeda := '';
+    CurrenciesArray := JSONObject.GetValue<TJSONArray>('currencies');
+     if (CurrenciesArray <> nil) and (CurrenciesArray.Count > 0) then
+      begin
+        CurrencyObj := CurrenciesArray.Items[0] as TJSONObject;
+        NomeMoeda := CurrencyObj.GetValue<string>('name');
+      end;
+
+     Result := TPaisesModel.Create;
+     Result.CarregarDados(
+      JSONObject.GetValue<string>('name'),
+      JSONObject.GetValue<string>('capital'),
+      JSONObject.GetValue<string>('region'),
+      JSONObject.GetValue<int64>('population').toString,
+      NomeMoeda
+      );
+    finally
+    JSONArray.Free;
+
+    end;
+  except
+    on E: Exception do
+      raise Exception.Create('Erro ao consultar o país: ' + E.Message);
+  end;
+end;
+
+end.
