@@ -1,0 +1,221 @@
+﻿unit FrmFormaPagamento;
+
+interface
+
+uses
+  FormaPagamentoModel, FormaPagamentoService,
+  Winapi.Windows, Winapi.Messages,
+  System.SysUtils, System.Variants, System.Classes,
+  System.Generics.Collections, System.UITypes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.Grids, Vcl.StdCtrls, Vcl.ExtCtrls;
+
+type
+  TfrmCadFormaPagamento = class(TForm)
+    pnlCampos: TPanel;
+    lblNome: TLabel;
+    edtNome: TEdit;
+    pnlBotoes: TPanel;
+    btnSalvar: TButton;
+    btnEditar: TButton;
+    btnExcluir: TButton;
+    btnCancelar: TButton;
+    gridFormasPagamento: TStringGrid;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnSalvarClick(Sender: TObject);
+    procedure btnEditarClick(Sender: TObject);
+    procedure btnExcluirClick(Sender: TObject);
+    procedure btnCancelarClick(Sender: TObject);
+    procedure gridFormasPagamentoClick(Sender: TObject);
+  private
+    FFormaPagamentoService: TFormaPagamentoService;
+    FIDEdicao: Integer;
+    procedure LimparCampos;
+    procedure CarregarGrid;
+  public
+  end;
+
+var
+  frmCadFormaPagamento: TfrmCadFormaPagamento;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmCadFormaPagamento.FormCreate(Sender: TObject);
+begin
+  FFormaPagamentoService := TFormaPagamentoService.Create;
+
+  // Larguras definidas em código para evitar streaming inválido do DFM
+  gridFormasPagamento.ColWidths[0] := 50;
+  gridFormasPagamento.ColWidths[1] := 316;
+
+  LimparCampos;
+  CarregarGrid;
+end;
+
+procedure TfrmCadFormaPagamento.FormDestroy(Sender: TObject);
+begin
+  FFormaPagamentoService.Free;
+end;
+
+procedure TfrmCadFormaPagamento.FormShow(Sender: TObject);
+begin
+  edtNome.SetFocus;
+end;
+
+procedure TfrmCadFormaPagamento.LimparCampos;
+begin
+  FIDEdicao := 0;
+  edtNome.Clear;
+  btnSalvar.Caption := '&Salvar';
+  btnEditar.Enabled  := False;
+  btnExcluir.Enabled := False;
+end;
+
+procedure TfrmCadFormaPagamento.CarregarGrid;
+var
+  Lista: TObjectList<TFormaPagamento>;
+  FormaPagamento: TFormaPagamento;
+  Linha: Integer;
+begin
+  gridFormasPagamento.ColCount := 2;
+  gridFormasPagamento.Cells[0, 0] := 'ID';
+  gridFormasPagamento.Cells[1, 0] := 'Forma de pagamento';
+
+  Lista := FFormaPagamentoService.ListarTodas;
+  try
+    if Lista.Count = 0 then
+    begin
+      gridFormasPagamento.RowCount := 2;
+      gridFormasPagamento.FixedRows := 1;
+      gridFormasPagamento.Cells[0, 1] := '';
+      gridFormasPagamento.Cells[1, 1] := 'Nenhuma forma de pagamento cadastrada';
+      Exit;
+    end;
+
+    gridFormasPagamento.RowCount := Lista.Count + 1;
+    gridFormasPagamento.FixedRows := 1;
+
+    Linha := 1;
+    for FormaPagamento in Lista do
+    begin
+      gridFormasPagamento.Cells[0, Linha] := FormaPagamento.Id.ToString;
+      gridFormasPagamento.Cells[1, Linha] := FormaPagamento.Nome;
+      Inc(Linha);
+    end;
+  finally
+    Lista.Free;
+  end;
+end;
+
+procedure TfrmCadFormaPagamento.gridFormasPagamentoClick(Sender: TObject);
+var
+  Linha: Integer;
+begin
+  Linha := gridFormasPagamento.Row;
+  if (Linha > 0) and (gridFormasPagamento.Cells[0, Linha] <> '') then
+  begin
+    btnEditar.Enabled  := True;
+    btnExcluir.Enabled := True;
+  end
+  else
+  begin
+    btnEditar.Enabled  := False;
+    btnExcluir.Enabled := False;
+  end;
+end;
+
+procedure TfrmCadFormaPagamento.btnSalvarClick(Sender: TObject);
+var
+  FormaPagamento: TFormaPagamento;
+begin
+  if Trim(edtNome.Text) = '' then
+  begin
+    ShowMessage('Informe o nome da forma de pagamento.');
+    edtNome.SetFocus;
+    Exit;
+  end;
+
+  FormaPagamento := TFormaPagamento.Create;
+  try
+    try
+      FormaPagamento.Id   := FIDEdicao;
+      FormaPagamento.Nome := edtNome.Text;
+
+      if FIDEdicao = 0 then
+      begin
+        if FFormaPagamentoService.Inserir(FormaPagamento) then
+          ShowMessage('Forma de pagamento cadastrada com sucesso!');
+      end
+      else
+      begin
+        if FFormaPagamentoService.Atualizar(FormaPagamento) then
+          ShowMessage('Forma de pagamento atualizada com sucesso!');
+      end;
+
+      LimparCampos;
+      CarregarGrid;
+    except
+      on E: Exception do
+        ShowMessage(E.Message);
+    end;
+  finally
+    FormaPagamento.Free;
+  end;
+end;
+
+procedure TfrmCadFormaPagamento.btnEditarClick(Sender: TObject);
+var
+  Linha: Integer;
+begin
+  Linha := gridFormasPagamento.Row;
+  if (Linha > 0) and (gridFormasPagamento.Cells[0, Linha] <> '') then
+  begin
+    FIDEdicao    := StrToInt(gridFormasPagamento.Cells[0, Linha]);
+    edtNome.Text := gridFormasPagamento.Cells[1, Linha];
+    btnSalvar.Caption := '&Atualizar';
+    btnEditar.Enabled  := False;
+    btnExcluir.Enabled := False;
+    edtNome.SetFocus;
+  end;
+end;
+
+procedure TfrmCadFormaPagamento.btnExcluirClick(Sender: TObject);
+var
+  Linha: Integer;
+  IdExcluir: Integer;
+begin
+  Linha := gridFormasPagamento.Row;
+  if (Linha < 1) or (gridFormasPagamento.Cells[0, Linha] = '') then
+  begin
+    ShowMessage('Selecione uma forma de pagamento para excluir.');
+    Exit;
+  end;
+
+  IdExcluir := StrToIntDef(gridFormasPagamento.Cells[0, Linha], 0);
+  if IdExcluir = 0 then
+  begin
+    ShowMessage('Selecione uma forma de pagamento válida para excluir.');
+    Exit;
+  end;
+
+  if Application.MessageBox('Confirma a exclusão da forma de pagamento selecionada?',
+    'Confirmação', MB_YESNO + MB_ICONQUESTION) <> IDYES then Exit;
+
+  if FFormaPagamentoService.Excluir(IdExcluir) then
+  begin
+    ShowMessage('Forma de pagamento excluída com sucesso!');
+    LimparCampos;
+    CarregarGrid;
+  end;
+end;
+
+procedure TfrmCadFormaPagamento.btnCancelarClick(Sender: TObject);
+begin
+  LimparCampos;
+end;
+
+end.

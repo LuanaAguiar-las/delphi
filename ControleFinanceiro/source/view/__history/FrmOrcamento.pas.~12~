@@ -1,0 +1,582 @@
+unit FrmOrcamento;
+
+interface
+
+uses
+  CategoriaService, CategoriaModel,
+  FormaPagamentoService, FormaPagamentoModel,
+  OrcamentoService, OrcamentoModel, OrcamentoDespesaModel,
+  CotacaoService,
+  Winapi.Windows, Winapi.Messages,
+  System.SysUtils, System.Variants, System.Classes,
+  System.Generics.Collections, System.UITypes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.Grids, Vcl.Mask;
+
+type
+  TfrmCadOrcamento = class(TForm)
+    // ---- [A] Painel Master (cabe�alho) ----
+    pnlOrcamento: TPanel;
+    lblMesAno: TLabel;
+    edtMesAno: TEdit;
+    lblSalario: TLabel;
+    edtSalario: TEdit;
+    lblRendaExtra: TLabel;
+    edtRendaExtra: TEdit;
+    lblMeta: TLabel;
+    edtMeta: TEdit;
+    lblObservacao: TLabel;
+    edtObservacao: TEdit;
+    // Bot�es do mestre, dentro do pr�prio pnlOrcamento
+    btnSalvar: TButton;
+    btnCarregarOrcamento: TButton;
+    btnNovoOrcamento: TButton;
+
+    // ---- [B] Painel de totais ----
+    pnlTotais: TPanel;
+    lblRendaTotalTit: TLabel;
+    lblRendaTotalVal: TLabel;
+    lblTotalDespesasTit: TLabel;
+    lblTotalDespesasVal: TLabel;
+    lblSaldoLivreTit: TLabel;
+    lblSaldoLivreVal: TLabel;
+
+    // ---- [C] Painel Detail (despesas) ----
+    pnlDespesa: TPanel;
+    lblDescricao: TLabel;
+    edtDescricao: TEdit;
+    lblValor: TLabel;
+    edtValor: TEdit;
+    lblCategoria: TLabel;
+    cmbCategoria: TComboBox;
+    lblFormaPagamento: TLabel;
+    cmbFormaPagamento: TComboBox;
+    chkPago: TCheckBox;
+    btnAdicionarDespesa: TButton;
+    btnRemoverDespesa: TButton;
+
+    // ---- [D] Grid de despesas ----
+    gridDespesas: TStringGrid;
+
+    // ---- [E] Painel Cota��o (rodap�) ----
+    pnlCotacao: TPanel;
+    btnCotacao: TButton;
+    lblCotacao: TLabel;
+
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    // Recalculo em tempo real
+    procedure edtSalarioChange(Sender: TObject);
+    procedure edtRendaExtraChange(Sender: TObject);
+    procedure edtMetaChange(Sender: TObject);
+    // A��es Detail
+    procedure btnAdicionarDespesaClick(Sender: TObject);
+    procedure btnRemoverDespesaClick(Sender: TObject);
+    // A��es Master
+    procedure btnSalvarClick(Sender: TObject);
+    procedure btnCarregarOrcamentoClick(Sender: TObject);
+    procedure btnNovoOrcamentoClick(Sender: TObject);
+    // Cota��o
+    procedure btnCotacaoClick(Sender: TObject);
+  private
+    FOrcamentoAtual: TOrcamento;
+    FOrcamentoService: TOrcamentoService;
+    FCategoriaService: TCategoriaService;
+    FFormaPagamentoService: TFormaPagamentoService;
+    FCotacaoService: TCotacaoService;
+
+    procedure CarregarComboCategorias;
+    procedure CarregarComboFormasPagamento;
+    procedure AtualizarGridDespesas;
+    procedure AtualizarTotais;
+    procedure SincronizarMasterComTela;
+    procedure LimparCamposDespesa;
+    procedure PreencherTelaPorOrcamento(const AOrcamento: TOrcamento);
+    function ObterIdCombo(Combo: TComboBox): Integer;
+    procedure SelecionarItemComboPorId(Combo: TComboBox; IdDesejado: Integer);
+    function ParsiarMoeda(const ATexto: string): Currency;
+  public
+  end;
+
+var
+  frmCadOrcamento: TfrmCadOrcamento;
+
+implementation
+
+{$R *.dfm}
+
+// ---------------------------------------------------------------------------
+//  ParsiarMoeda — suporta padr�o BR (1.234,56) e US (1234.56)
+// ---------------------------------------------------------------------------
+
+function TfrmCadOrcamento.ParsiarMoeda(const ATexto: string): Currency;
+var
+  Texto: string;
+  I: Integer;
+  C: Char;
+  SoDigitos: string;
+  PosVirgula, PosPonto: Integer;
+begin
+  Result := 0;
+
+  // Remove prefixo R$ e espa�os
+  Texto := Trim(ATexto);
+  Texto := StringReplace(Texto, 'R$', '', [rfReplaceAll]);
+  Texto := StringReplace(Texto, ' ', '', [rfReplaceAll]);
+  Texto := Trim(Texto);
+
+  if Texto = '' then
+    Exit;
+
+  // Detecta o padr�o pelo posicionamento de '.' e ','
+  PosVirgula := LastDelimiter(',', Texto);
+  PosPonto   := LastDelimiter('.', Texto);
+
+  if (PosVirgula > 0) and (PosPonto > 0) then
+  begin
+    // Ambos presentes: o que vier por �ltimo � o decimal
+    if PosVirgula > PosPonto then
+    begin
+      // Padr�o BR: 1.234,56  -> remove '.' e troca ',' por '.'
+      Texto := StringReplace(Texto, '.', '', [rfReplaceAll]);
+      Texto := StringReplace(Texto, ',', '.', [rfReplaceAll]);
+    end
+    else
+    begin
+      // Padr�o US: 1,234.56  -> remove ','
+      Texto := StringReplace(Texto, ',', '', [rfReplaceAll]);
+    end;
+  end
+  else if PosVirgula > 0 then
+  begin
+    // Apenas v�rgula: pode ser separador decimal (BR) ou milhar
+    // Se h� exatamente 3 d�gitos ap�s a v�rgula trata como milhar, caso contr�rio como decimal
+    if Length(Texto) - PosVirgula = 3 then
+      Texto := StringReplace(Texto, ',', '', [rfReplaceAll])  // milhar: 1,234
+    else
+      Texto := StringReplace(Texto, ',', '.', [rfReplaceAll]); // decimal: 1234,56
+  end;
+  // Se s� tem ponto n�o faz nada (j� est� no padr�o float)
+
+  // Remove qualquer caractere n�o num�rico restante (exceto ponto e sinal)
+  SoDigitos := '';
+  for I := 1 to Length(Texto) do
+  begin
+    C := Texto[I];
+    if CharInSet(C, ['0'..'9', '.', '-']) then
+      SoDigitos := SoDigitos + C;
+  end;
+
+  Result := StrToCurrDef(SoDigitos, 0);
+end;
+
+// ---------------------------------------------------------------------------
+//  ObterIdCombo / SelecionarItemComboPorId
+// ---------------------------------------------------------------------------
+
+function TfrmCadOrcamento.ObterIdCombo(Combo: TComboBox): Integer;
+begin
+  Result := 0;
+  if Combo.ItemIndex <> -1 then
+    Result := Integer(NativeInt(Combo.Items.Objects[Combo.ItemIndex]));
+end;
+
+procedure TfrmCadOrcamento.SelecionarItemComboPorId(Combo: TComboBox; IdDesejado: Integer);
+var
+  I: Integer;
+begin
+  Combo.ItemIndex := -1;
+  for I := 0 to Combo.Items.Count - 1 do
+    if Integer(NativeInt(Combo.Items.Objects[I])) = IdDesejado then
+    begin
+      Combo.ItemIndex := I;
+      Break;
+    end;
+end;
+
+// ---------------------------------------------------------------------------
+//  Ciclo de vida
+// ---------------------------------------------------------------------------
+
+procedure TfrmCadOrcamento.FormCreate(Sender: TObject);
+begin
+  FOrcamentoService      := TOrcamentoService.Create;
+  FCategoriaService      := TCategoriaService.Create;
+  FFormaPagamentoService := TFormaPagamentoService.Create;
+  FCotacaoService        := TCotacaoService.Create;
+  FOrcamentoAtual        := TOrcamento.Create;
+
+  CarregarComboCategorias;
+  CarregarComboFormasPagamento;
+  AtualizarGridDespesas;
+  AtualizarTotais;
+end;
+
+procedure TfrmCadOrcamento.FormDestroy(Sender: TObject);
+begin
+  FreeAndNil(FOrcamentoAtual);
+  FreeAndNil(FOrcamentoService);
+  FreeAndNil(FCategoriaService);
+  FreeAndNil(FFormaPagamentoService);
+  FreeAndNil(FCotacaoService);
+end;
+
+procedure TfrmCadOrcamento.FormShow(Sender: TObject);
+begin
+  edtMesAno.SetFocus;
+end;
+
+// ---------------------------------------------------------------------------
+//  Recalculo em tempo real (OnChange dos campos Master)
+// ---------------------------------------------------------------------------
+
+procedure TfrmCadOrcamento.SincronizarMasterComTela;
+begin
+  // L� os tr�s campos num�ricos e atualiza o objeto em mem�ria
+  FOrcamentoAtual.SalarioLiquido   := ParsiarMoeda(edtSalario.Text);
+  FOrcamentoAtual.RendaExtra       := ParsiarMoeda(edtRendaExtra.Text);
+  FOrcamentoAtual.MetaInvestimento := ParsiarMoeda(edtMeta.Text);
+  AtualizarTotais;
+end;
+
+procedure TfrmCadOrcamento.edtSalarioChange(Sender: TObject);
+begin
+  SincronizarMasterComTela;
+end;
+
+procedure TfrmCadOrcamento.edtRendaExtraChange(Sender: TObject);
+begin
+  SincronizarMasterComTela;
+end;
+
+procedure TfrmCadOrcamento.edtMetaChange(Sender: TObject);
+begin
+  SincronizarMasterComTela;
+end;
+
+// ---------------------------------------------------------------------------
+//  Carga de combos
+// ---------------------------------------------------------------------------
+
+procedure TfrmCadOrcamento.CarregarComboCategorias;
+var
+  Lista: TObjectList<TCategoria>;
+  Cat: TCategoria;
+begin
+  cmbCategoria.Items.Clear;
+  Lista := FCategoriaService.ListarTodas;
+  try
+    for Cat in Lista do
+      cmbCategoria.Items.AddObject(Cat.Nome, TObject(NativeInt(Cat.Id)));
+  finally
+    Lista.Free;
+  end;
+end;
+
+procedure TfrmCadOrcamento.CarregarComboFormasPagamento;
+var
+  Lista: TObjectList<TFormaPagamento>;
+  FP: TFormaPagamento;
+begin
+  cmbFormaPagamento.Items.Clear;
+  Lista := FFormaPagamentoService.ListarTodas;
+  try
+    for FP in Lista do
+      cmbFormaPagamento.Items.AddObject(FP.Nome, TObject(NativeInt(FP.Id)));
+  finally
+    Lista.Free;
+  end;
+end;
+
+// ---------------------------------------------------------------------------
+//  Grid e totais
+// ---------------------------------------------------------------------------
+
+procedure TfrmCadOrcamento.AtualizarGridDespesas;
+var
+  D: TOrcamentoDespesa;
+  Linha: Integer;
+begin
+  gridDespesas.ColCount := 5;
+  gridDespesas.Cells[0, 0] := '#';
+  gridDespesas.Cells[1, 0] := 'Descri' + #231 + #227 + 'o';
+  gridDespesas.Cells[2, 0] := 'Valor';
+  gridDespesas.Cells[3, 0] := 'Categoria';
+  gridDespesas.Cells[4, 0] := 'Forma Pagto';
+
+  if FOrcamentoAtual.Despesas.Count = 0 then
+  begin
+    gridDespesas.RowCount := 2;
+    gridDespesas.Cells[0, 1] := '';
+    gridDespesas.Cells[1, 1] := 'Nenhuma despesa adicionada';
+    gridDespesas.Cells[2, 1] := '';
+    gridDespesas.Cells[3, 1] := '';
+    gridDespesas.Cells[4, 1] := '';
+    Exit;
+  end;
+
+  gridDespesas.RowCount := FOrcamentoAtual.Despesas.Count + 1;
+  Linha := 1;
+  for D in FOrcamentoAtual.Despesas do
+  begin
+    gridDespesas.Cells[0, Linha] := IntToStr(Linha);
+    gridDespesas.Cells[1, Linha] := D.Descricao;
+    gridDespesas.Cells[2, Linha] := FormatFloat('R$ #,##0.00', D.Valor);
+    gridDespesas.Cells[3, Linha] := D.CategoriaNome;
+    gridDespesas.Cells[4, Linha] := D.FormaPagamentoNome;
+    Inc(Linha);
+  end;
+end;
+
+procedure TfrmCadOrcamento.AtualizarTotais;
+begin
+  lblRendaTotalVal.Caption    := FormatFloat('R$ #,##0.00', FOrcamentoAtual.RendaTotal);
+  lblTotalDespesasVal.Caption := FormatFloat('R$ #,##0.00', FOrcamentoAtual.TotalDespesas);
+
+  if FOrcamentoAtual.SaldoLivre >= 0 then
+    lblSaldoLivreVal.Font.Color := clGreen
+  else
+    lblSaldoLivreVal.Font.Color := clRed;
+
+  lblSaldoLivreVal.Caption := FormatFloat('R$ #,##0.00', FOrcamentoAtual.SaldoLivre);
+end;
+
+// ---------------------------------------------------------------------------
+//  Helpers de tela
+// ---------------------------------------------------------------------------
+
+procedure TfrmCadOrcamento.LimparCamposDespesa;
+begin
+  edtDescricao.Clear;
+  edtValor.Clear;
+  cmbCategoria.ItemIndex    := -1;
+  cmbFormaPagamento.ItemIndex := -1;
+  chkPago.Checked := False;
+  edtDescricao.SetFocus;
+end;
+
+procedure TfrmCadOrcamento.PreencherTelaPorOrcamento(const AOrcamento: TOrcamento);
+begin
+  edtMesAno.Text     := AOrcamento.MesAno;
+  edtSalario.Text    := FormatFloat('#,##0.00', AOrcamento.SalarioLiquido);
+  edtRendaExtra.Text := FormatFloat('#,##0.00', AOrcamento.RendaExtra);
+  edtMeta.Text       := FormatFloat('#,##0.00', AOrcamento.MetaInvestimento);
+  edtObservacao.Text := AOrcamento.Observacao;
+  // Os eventos OnChange cuidam de sincronizar e recalcular
+end;
+
+// ---------------------------------------------------------------------------
+//  A��es Detail (despesas em mem�ria)
+// ---------------------------------------------------------------------------
+
+procedure TfrmCadOrcamento.btnAdicionarDespesaClick(Sender: TObject);
+var
+  Despesa: TOrcamentoDespesa;
+  IdCat, IdFP: Integer;
+begin
+  if Trim(edtDescricao.Text) = '' then
+  begin
+    ShowMessage('Informe a descri' + #231 + #227 + 'o da despesa.');
+    edtDescricao.SetFocus;
+    Exit;
+  end;
+
+  if ParsiarMoeda(edtValor.Text) <= 0 then
+  begin
+    ShowMessage('Informe um valor maior que zero.');
+    edtValor.SetFocus;
+    Exit;
+  end;
+
+  IdCat := ObterIdCombo(cmbCategoria);
+  if IdCat = 0 then
+  begin
+    ShowMessage('Selecione uma categoria.');
+    cmbCategoria.SetFocus;
+    Exit;
+  end;
+
+  IdFP := ObterIdCombo(cmbFormaPagamento);
+  if IdFP = 0 then
+  begin
+    ShowMessage('Selecione uma forma de pagamento.');
+    cmbFormaPagamento.SetFocus;
+    Exit;
+  end;
+
+  Despesa := TOrcamentoDespesa.Create;
+  try
+    Despesa.Descricao          := Trim(edtDescricao.Text);
+    Despesa.Valor              := ParsiarMoeda(edtValor.Text);
+    Despesa.IdCategoria        := IdCat;
+    Despesa.CategoriaNome      := cmbCategoria.Text;
+    Despesa.IdFormaPagamento   := IdFP;
+    Despesa.FormaPagamentoNome := cmbFormaPagamento.Text;
+    Despesa.Pago               := chkPago.Checked;
+    FOrcamentoAtual.Despesas.Add(Despesa);
+  except
+    Despesa.Free;
+    raise;
+  end;
+
+  LimparCamposDespesa;
+  AtualizarGridDespesas;
+  AtualizarTotais;
+end;
+
+procedure TfrmCadOrcamento.btnRemoverDespesaClick(Sender: TObject);
+var
+  Linha: Integer;
+begin
+  Linha := gridDespesas.Row;
+
+  if (Linha < 1) or (Linha > FOrcamentoAtual.Despesas.Count) then
+  begin
+    ShowMessage('Selecione uma despesa na lista para remover.');
+    Exit;
+  end;
+
+  if MessageDlg('Remover a despesa selecionada da lista?',
+    mtConfirmation, [mbYes, mbNo], 0) <> mrYes then Exit;
+
+  FOrcamentoAtual.Despesas.Delete(Linha - 1);
+  AtualizarGridDespesas;
+  AtualizarTotais;
+end;
+
+// ---------------------------------------------------------------------------
+//  A��es Master
+// ---------------------------------------------------------------------------
+
+procedure TfrmCadOrcamento.btnSalvarClick(Sender: TObject);
+begin
+  try
+    // Garante que os dados mais recentes da tela est�o no objeto
+    FOrcamentoAtual.MesAno           := Trim(edtMesAno.Text);
+    FOrcamentoAtual.SalarioLiquido   := ParsiarMoeda(edtSalario.Text);
+    FOrcamentoAtual.RendaExtra       := ParsiarMoeda(edtRendaExtra.Text);
+    FOrcamentoAtual.MetaInvestimento := ParsiarMoeda(edtMeta.Text);
+    FOrcamentoAtual.Observacao       := Trim(edtObservacao.Text);
+
+    if Trim(FOrcamentoAtual.MesAno) = '' then
+    begin
+      ShowMessage('Informe o m' + #234 + 's/ano de refer' + #234 + 'ncia (ex: 11/2026).');
+      edtMesAno.SetFocus;
+      Exit;
+    end;
+
+    if FOrcamentoAtual.SalarioLiquido <= 0 then
+    begin
+      ShowMessage('Informe o sal' + #225 + 'rio l' + #237 + 'quido.');
+      edtSalario.SetFocus;
+      Exit;
+    end;
+
+    if FOrcamentoService.Salvar(FOrcamentoAtual) then
+    begin
+      ShowMessage('Or' + #231 + 'amento salvo com sucesso!');
+      AtualizarTotais;
+    end;
+  except
+    on E: Exception do
+      ShowMessage('Erro ao salvar: ' + E.Message);
+  end;
+end;
+
+procedure TfrmCadOrcamento.btnCarregarOrcamentoClick(Sender: TObject);
+var
+  MesAno: string;
+  Lista: TObjectList<TOrcamento>;
+  Orc: TOrcamento;
+  Encontrado: TOrcamento;
+begin
+  MesAno := Trim(edtMesAno.Text);
+  if MesAno = '' then
+  begin
+    ShowMessage('Informe o m' + #234 + 's/ano para carregar (ex: 11/2026).');
+    edtMesAno.SetFocus;
+    Exit;
+  end;
+
+  Encontrado := nil;
+  Lista := FOrcamentoService.ListarTodos;
+  try
+    for Orc in Lista do
+      if Orc.MesAno = MesAno then
+      begin
+        Encontrado := Orc;
+        Break;
+      end;
+
+    if not Assigned(Encontrado) then
+    begin
+      ShowMessage('Nenhum or' + #231 + 'amento encontrado para "' + MesAno + '".');
+      Exit;
+    end;
+
+    // Extrai da lista antes de liber�-la para evitar destrui��o
+    Lista.Extract(Encontrado);
+    FreeAndNil(FOrcamentoAtual);
+    FOrcamentoAtual := Encontrado;
+  finally
+    Lista.Free;
+  end;
+
+  PreencherTelaPorOrcamento(FOrcamentoAtual);
+  AtualizarGridDespesas;
+  AtualizarTotais;
+end;
+
+procedure TfrmCadOrcamento.btnNovoOrcamentoClick(Sender: TObject);
+begin
+  if MessageDlg(
+    'Deseja iniciar um novo or' + #231 + 'amento? As altera' + #231 + #245 + 'es n' + #227 + 'o salvas ser' + #227 + 'o perdidas.',
+    mtConfirmation, [mbYes, mbNo], 0) <> mrYes then Exit;
+
+  FreeAndNil(FOrcamentoAtual);
+  FOrcamentoAtual := TOrcamento.Create;
+
+  edtMesAno.Clear;
+  edtSalario.Clear;
+  edtRendaExtra.Clear;
+  edtMeta.Clear;
+  edtObservacao.Clear;
+  LimparCamposDespesa;
+  AtualizarGridDespesas;
+  AtualizarTotais;
+  edtMesAno.SetFocus;
+end;
+
+// ---------------------------------------------------------------------------
+//  Cota��o (AwesomeAPI)
+// ---------------------------------------------------------------------------
+
+procedure TfrmCadOrcamento.btnCotacaoClick(Sender: TObject);
+var
+  CotUSD, CotEUR: TCotacao;
+begin
+  lblCotacao.Caption := 'Consultando...';
+  Application.ProcessMessages;
+  try
+    CotUSD := FCotacaoService.ObterCotacao('USD-BRL');
+    CotEUR := FCotacaoService.ObterCotacao('EUR-BRL');
+
+    lblCotacao.Caption :=
+      'D' + #243 + 'lar (USD): R$ ' + FormatFloat('#,##0.0000', CotUSD.Bid) +
+      '  (' + CotUSD.PctChange + '%)    ' +
+      'Euro (EUR): R$ ' + FormatFloat('#,##0.0000', CotEUR.Bid) +
+      '  (' + CotEUR.PctChange + '%)';
+  except
+    on E: Exception do
+    begin
+      lblCotacao.Caption := 'Erro ao consultar cota' + #231 + #227 + 'o.';
+      ShowMessage(
+        'N' + #227 + 'o foi poss' + #237 + 'vel obter a cota' + #231 + #227 + 'o:' +
+        sLineBreak + E.Message
+      );
+    end;
+  end;
+end;
+
+end.

@@ -1,0 +1,23 @@
+program ControleFinanceiro;
+
+uses
+  Vcl.Forms,
+  uFrmPrincipal in 'source\view\uFrmPrincipal.pas' {Form1},
+  uDataModule in 'source\DataModule\uDataModule.pas' {dtmDataBase: TDataModule},
+  CategoriaModel in 'source\Model\CategoriaModel.pas',
+  FormaPagamentoModel in 'source\Model\FormaPagamentoModel.pas',
+  OrcamentoDespesaModel in 'source\Model\OrcamentoDespesaModel.pas',
+  OrcamentoModel in 'source\Model\OrcamentoModel.pas',
+  CategoriaService in 'source\Service\CategoriaService.pas',
+  FormaPagamentoService in 'source\Service\FormaPagamentoService.pas',
+  OrcamentoService in 'source\Service\OrcamentoService.pas';
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TForm1, Form1);
+  Application.CreateForm(TdtmDataBase, dtmDataBase);
+  Application.Run;
+end.

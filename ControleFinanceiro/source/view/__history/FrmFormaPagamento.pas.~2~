@@ -1,0 +1,33 @@
+unit FrmFormaPagamento;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.StdCtrls, Vcl.ExtCtrls;
+
+type
+  TfrmCadFormaPagamento = class(TForm)
+    pnlCampos: TPanel;
+    lblNome: TLabel;
+    edtNome: TEdit;
+    pnlBotoes: TPanel;
+    btnSalvar: TButton;
+    btnEditar: TButton;
+    btnExcluir: TButton;
+    btnCancelar: TButton;
+    gridFormasPagamento: TStringGrid;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCadFormaPagamento: TfrmCadFormaPagamento;
+
+implementation
+
+{$R *.dfm}
+
+end.

@@ -1,0 +1,311 @@
+unit FrmOrcamento;
+
+interface
+
+uses
+  CategoriaService, CategoriaModel, FormaPagamentoService,FormaPagamentoModel,
+  OrcamentoService, OrcamentoDespesaModel,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.ExtCtrls, Vcl.StdCtrls, Vcl.ComCtrls,
+  Vcl.Grids, System.Generics.Collections, System.UITypes;
+
+type
+  TfrmCadOrcamento = class(TForm)
+    pnlCampos: TPanel;
+    edtDescricao: TEdit;
+    edtValor: TEdit;
+    dtpData: TDateTimePicker;
+    cmbCategoria: TComboBox;
+    cmbFormaPagamento: TComboBox;
+    lblDescricao: TLabel;
+    lblValor: TLabel;
+    lblData: TLabel;
+    lblCategoria: TLabel;
+    lblFormaPagamento: TLabel;
+    pnlBotoes: TPanel;
+    btnSalvar: TButton;
+    btnEditar: TButton;
+    bntExcluir: TButton;
+    gridOrcamentos: TStringGrid;
+    btnCancelar: TButton;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnSalvarClick(Sender: TObject);
+    procedure btnEditarClick(Sender: TObject);
+    procedure bntExcluirClick(Sender: TObject);
+    procedure btnCancelarClick(Sender: TObject);
+  private
+    { Private declarations }
+
+    FOrcamentoService: TOrcamentoService;
+    FCategoriaService: TCategoriaService;
+    FFormaPagamentoService: TFormaPagamentoService;
+
+    FIDEdicao: Integer;
+
+    procedure CarregarComboCategorias;
+    procedure CarregarComboFormasPagamento;
+    procedure CarregarGrid;
+    procedure LimparCampos;
+    function ObterIdCategoriaSelecionada: integer;
+    function ObterIdFormaPagamentoSelecionada: integer;
+    procedure SelecionarItemComboPorId(Combo: TCombobox; IdDesejado: integer);
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCadOrcamento: TfrmCadOrcamento;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmCadOrcamento.bntExcluirClick(Sender: TObject);
+var
+  IdExcluir: integer;
+  LinhaSelecionada: integer;
+
+begin
+  LinhaSelecionada := gridOrcamentos.Row;
+  if (LinhaSelecionada > 0) and (gridOrcamentos.Cells[0, LinhaSelecionada] <> '') then
+  begin
+    IdExcluir := StrToInt(gridOrcamentos.Cells[0, LinhaSelecionada]);
+
+    if MessageDlg('Confirma a exclusão do orçamento selecionado?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+
+    begin
+      if FOrcamentoService.ExcluirDespesa(IdExcluir) then
+      begin
+        ShowMessage('Orçamento excluído com sucesso"');
+        LimparCampos;
+        CarregarGrid;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadOrcamento.btnCancelarClick(Sender: TObject);
+begin
+  LimparCampos;
+end;
+
+procedure TfrmCadOrcamento.btnEditarClick(Sender: TObject);
+var
+  LinhaSelecionada: integer;
+  Despesa: TOrcamentoDespesa;
+
+begin
+  LinhaSelecionada := gridOrcamentos.Row;
+  if (LinhaSelecionada > 0) and (gridOrcamentos.Cells[0, LinhaSelecionada] <> '') then
+  begin
+    FIDEdicao := StrToInt(gridOrcamentos.Cells[0, LinhaSelecionada]);
+
+    Despesa := FOrcamentoService.ObterDespesaPorId(FIDEdicao);
+    if Assigned(Despesa) then
+    begin
+      try
+        edtDescricao.Text := Despesa.Descricao;
+        edtValor.Text := FloatToStr(Despesa.Valor);
+        dtpData.Date := Despesa.Data;
+        SelecionarItemComboPorId(cmbCategoria, Despesa.IdCategoria);
+        SelecionarItemComboPorId(cmbFormaPagamento, Despesa.IdFormaPagamento);
+        btnSalvar.Caption := '&Atualizar';
+      finally
+        Despesa.Free;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadOrcamento.btnSalvarClick(Sender: TObject);
+var
+  Despesa: TOrcamentoDespesa;
+
+begin
+  Despesa := TOrcamentoDespesa.Create;
+  try
+    try
+      Despesa.Id := FIDEdicao;
+      Despesa.Descricao := edtDescricao.Text;
+      Despesa.Valor := StrToFloatDef(Trim(StringReplace(edtValor.Text, 'R$', '', [rfReplaceAll])), 0);
+      Despesa.Data := dtpData.Date;
+      Despesa.IdCategoria := ObterIdCategoriaSelecionada;
+      Despesa.IdFormaPagamento := ObterIdFormaPagamentoSelecionada;
+
+      if FIDEdicao = 0 then
+      begin
+        if FOrcamentoService.InserirDespesa(Despesa) then
+          ShowMessage('Despesa cadastrada com sucesso!');
+      end
+      else
+      begin
+        if FOrcamentoService.AtualizarDespesa(Despesa) then
+          ShowMessage('Despesa atualizada com sucesso!');
+      end;
+
+      LimparCampos;
+      CarregarGrid;
+    except
+      On E: Exception do
+      begin
+        ShowMessage(E.Message);
+      end;
+    end;
+  finally
+    Despesa.Free;
+  end;
+end;
+
+procedure TfrmCadOrcamento.CarregarComboCategorias;
+var
+  Lista: TObjectList<TCategoria>;
+  Categoria: TCategoria;
+
+begin
+  cmbCategoria.Items.Clear;
+  Lista := FCategoriaService.ListarTodas;
+
+  try
+    for Categoria in Lista do
+    begin
+      cmbCategoria.Items.AddObject(Categoria.Nome, TObject(NativeInt(Categoria.Id)));
+    end;
+  finally
+    Lista.Free;
+  end;
+end;
+
+procedure TfrmCadOrcamento.CarregarComboFormasPagamento;
+var
+  Lista: TObjectList<TFormaPagamento>;
+  FormaPagamento: TFormaPagamento;
+
+begin
+  cmbFormaPagamento.Items.Clear;
+  Lista := FFormaPagamentoService.ListarTodas;
+
+  try
+    for FormaPagamento in Lista do
+    begin
+      cmbFormaPagamento.Items.AddObject(FormaPagamento.Nome, TObject(NativeInt(FormaPagamento.Id)));
+    end;
+  finally
+    Lista.Free;
+  end;
+end;
+
+procedure TfrmCadOrcamento.CarregarGrid;
+var
+  Lista: TObjectList<TOrcamentoDespesa>;
+  Orcamento: TOrcamentoDespesa;
+  Linha: integer;
+
+begin
+  gridOrcamentos.ColCount := 6;
+  gridOrcamentos.Cells[0, 0] := 'ID';
+  gridOrcamentos.Cells[1, 0] := 'Descrição';
+  gridOrcamentos.Cells[2, 0] := 'Valor';
+  gridOrcamentos.Cells[3, 0] := 'Data';
+  gridOrcamentos.Cells[4, 0] := 'Categoria';
+  gridOrcamentos.Cells[5, 0] := 'Forma pagto';
+
+  Lista := FOrcamentoService.ListarTodasDespesas;
+  try
+    if Lista.Count = 0 then
+    begin
+      gridOrcamentos.RowCount := 2;
+      gridOrcamentos.Cells[0, 1] := '';
+      gridOrcamentos.Cells[1, 1] := 'Nenhum orçamento cadastrado';
+      gridOrcamentos.Cells[2, 1] := '';
+      gridOrcamentos.Cells[3, 1] := '';
+      gridOrcamentos.Cells[4, 1] := '';
+      gridOrcamentos.Cells[5, 1] := '';
+      Exit;
+    end;
+
+    gridOrcamentos.RowCount := Lista.Count + 1;
+    Linha := 1;
+    for Orcamento in Lista do
+    begin
+      gridOrcamentos.Cells[0, Linha] := Orcamento.Id.ToString;
+      gridOrcamentos.Cells[1, Linha] := Orcamento.Descricao;
+      gridOrcamentos.Cells[2, Linha] := FormatFloat('R$ #,##0.00', Orcamento.Valor);
+      gridOrcamentos.Cells[3, Linha] := DateToStr(Orcamento.Data);
+      gridOrcamentos.Cells[4, Linha] := Orcamento.CategoriaNome;
+      gridOrcamentos.Cells[5, Linha] := Orcamento.FormaPagamentoNome;
+      Inc(Linha);
+    end;
+  finally
+    Lista.Free;
+  end;
+end;
+
+procedure TfrmCadOrcamento.FormCreate(Sender: TObject);
+begin
+  FOrcamentoService := TOrcamentoService.Create;
+  FCategoriaService := TCategoriaService.Create;
+  FFormaPagamentoService := TFormaPagamentoService.Create;
+
+  CarregarComboCategorias;
+  CarregarComboFormasPagamento;
+  CarregarGrid;
+end;
+
+procedure TfrmCadOrcamento.FormDestroy(Sender: TObject);
+begin
+  FOrcamentoService.Free;
+  FCategoriaService.Free;
+  FFormaPagamentoService.Free;
+end;
+
+procedure TfrmCadOrcamento.FormShow(Sender: TObject);
+begin
+  edtDescricao.SetFocus;
+end;
+
+procedure TfrmCadOrcamento.LimparCampos;
+begin
+  FIDEdicao := 0;
+  edtDescricao.Clear;
+  edtValor.Clear;
+  dtpData.Date := Date;
+  cmbCategoria.ItemIndex := -1;
+  cmbFormaPagamento.ItemIndex := -1;
+  btnSalvar.Caption := '&Salvar';
+  bntExcluir.Enabled := True;
+  btnEditar.Enabled := True;
+
+end;
+
+function TfrmCadOrcamento.ObterIdCategoriaSelecionada: integer;
+begin
+  Result := 0;
+  if cmbCategoria.ItemIndex <> -1 then
+    Result := Integer(NativeInt(cmbCategoria.Items.Objects[cmbCategoria.ItemIndex]));
+end;
+
+function TfrmCadOrcamento.ObterIdFormaPagamentoSelecionada: integer;
+begin
+  Result := 0;
+  if cmbFormaPagamento.ItemIndex <> -1 then
+    Result := Integer(NativeInt(cmbFormaPagamento.Items.Objects[cmbFormaPagamento.ItemIndex]));
+end;
+
+procedure TfrmCadOrcamento.SelecionarItemComboPorId(Combo: TCombobox; IdDesejado: integer);
+var
+  I: integer;
+begin
+  Combo.ItemIndex := -1;
+  for I := 0 to Combo.Items.Count -1 do
+  begin
+    if Integer(NativeInt(Combo.Items.Objects[I])) = IdDesejado then
+    begin
+      Combo.ItemIndex := I;
+      Break;
+    end;
+  end;
+end;
+
+end.

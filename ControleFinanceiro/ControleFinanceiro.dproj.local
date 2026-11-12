@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2026/11/01 10:06:49.000.292,=C:\Delphi\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 10:09:56.000.508,C:\Delphi\Unit1.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\source\view\uFrmPrincipal.pas</Transaction>
+    <Transaction>2026/11/01 10:09:56.000.508,C:\Delphi\Unit1.dfm=C:\Delphi\Avaliacoes\ControleFinanceiro\source\view\uFrmPrincipal.dfm</Transaction>
+    <Transaction>2026/11/01 10:11:26.000.265,C:\Delphi\Project1.dproj=C:\Delphi\Avaliacoes\ControleFinanceiro\ControleFinanceiro.dproj</Transaction>
+    <Transaction>2026/11/01 10:14:34.000.049,=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 10:15:57.000.134,C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.dfm=C:\Delphi\Avaliacoes\ControleFinanceiro\source\DataModule\uDataModule.dfm</Transaction>
+    <Transaction>2026/11/01 10:15:57.000.134,C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\source\DataModule\uDataModule.pas</Transaction>
+    <Transaction>2026/11/01 11:08:03.000.265,=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 11:09:08.000.908,C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\source\Model\CategoriaModel.pas</Transaction>
+    <Transaction>2026/11/01 11:45:10.000.776,=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 11:45:41.000.960,C:\Delphi\Avaliacoes\ControleFinanceiro\source\Model\FormaPagamentoModel.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 11:53:10.000.093,=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 11:53:35.000.002,C:\Delphi\Avaliacoes\ControleFinanceiro\source\Model\OrcamentoDespesaModel.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 12:29:47.000.642,=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 12:30:08.000.188,C:\Delphi\Avaliacoes\ControleFinanceiro\source\Model\OrcamentoModel.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 14:16:53.000.257,=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 14:17:25.000.661,C:\Delphi\Avaliacoes\ControleFinanceiro\source\Service\CategoriaService.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 15:04:02.000.936,=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 15:04:29.000.622,C:\Delphi\Avaliacoes\ControleFinanceiro\source\Service\FormaPagamentoService.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 15:49:57.000.849,=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/01 15:50:23.000.230,C:\Delphi\Avaliacoes\ControleFinanceiro\source\Service\OrcamentoService.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/02 11:18:37.000.530,=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit2.pas</Transaction>
+    <Transaction>2026/11/02 11:19:20.000.997,C:\Delphi\Avaliacoes\ControleFinanceiro\Unit2.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\source\view\FrmCategoria.pas</Transaction>
+    <Transaction>2026/11/02 11:19:20.000.997,C:\Delphi\Avaliacoes\ControleFinanceiro\Unit2.dfm=C:\Delphi\Avaliacoes\ControleFinanceiro\source\view\FrmCategoria.dfm</Transaction>
+    <Transaction>2026/11/02 13:55:06.000.533,C:\Delphi\Avaliacoes\ControleFinanceiro\source\view\uFrmPrincipal.dfm=C:\Delphi\Avaliacoes\ControleFinanceiro\source\view\FrmPrincipal.dfm</Transaction>
+    <Transaction>2026/11/02 13:55:06.000.533,C:\Delphi\Avaliacoes\ControleFinanceiro\source\view\uFrmPrincipal.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\source\view\FrmPrincipal.pas</Transaction>
+    <Transaction>2026/11/02 14:18:44.000.309,=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/02 14:19:15.000.603,C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.dfm=C:\Delphi\Avaliacoes\ControleFinanceiro\source\view\FrmFormaPagamento.dfm</Transaction>
+    <Transaction>2026/11/02 14:19:15.000.603,C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\source\view\FrmFormaPagamento.pas</Transaction>
+    <Transaction>2026/11/08 09:58:22.000.391,=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+    <Transaction>2026/11/08 09:59:46.000.677,C:\Delphi\Avaliacoes\ControleFinanceiro\source\view\FrmOrcamento.dfm=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.dfm</Transaction>
+    <Transaction>2026/11/08 09:59:46.000.677,C:\Delphi\Avaliacoes\ControleFinanceiro\source\view\FrmOrcamento.pas=C:\Delphi\Avaliacoes\ControleFinanceiro\Unit1.pas</Transaction>
+  </Transactions>
+</BorlandProject>

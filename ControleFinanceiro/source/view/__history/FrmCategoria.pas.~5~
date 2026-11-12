@@ -1,0 +1,179 @@
+unit FrmCategoria;
+
+interface
+
+uses
+  CategoriaModel, CategoriaService,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.StdCtrls, Vcl.ExtCtrls, System.Generics.Collections;
+
+type
+  TfrmCadCategoria = class(TForm)
+    pnlCampos: TPanel;
+    pnlBotoes: TPanel;
+    lblNome: TLabel;
+    edtNome: TEdit;
+    btnSalvar: TButton;
+    btnEditar: TButton;
+    btnExcluir: TButton;
+    btnCancelar: TButton;
+    gridCategorias: TStringGrid;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure btnSalvarClick(Sender: TObject);
+    procedure btnEditarClick(Sender: TObject);
+    procedure btnExcluirClick(Sender: TObject);
+    procedure btnCancelarClick(Sender: TObject);
+  private
+    { Private declarations }
+    FCategoriaService: TCategoriaService;
+    FIDEdicao: integer;
+
+    procedure CarregarGrid;
+    procedure LimparCampos;
+
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCadCategoria: TfrmCadCategoria;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmCadCategoria.FormCreate(Sender: TObject);
+begin
+  FCategoriaService := TCategoriaService.Create;
+  LimparCampos;
+  CarregarGrid;
+end;
+
+procedure TfrmCadCategoria.FormDestroy(Sender: TObject);
+begin
+  FCategoriaService.Free;
+end;
+
+procedure TfrmCadCategoria.LimparCampos;
+begin
+  FIDEdicao := 0;
+  edtNome.Clear;
+  btnSalvar.Caption := '&Salvar';
+  btnExcluir.Enabled := False;
+  btnEditar.Enabled := False;
+  edtNome.SetFocus;
+end;
+
+procedure TfrmCadCategoria.btnCancelarClick(Sender: TObject);
+begin
+  LimparCampos;
+end;
+
+procedure TfrmCadCategoria.btnEditarClick(Sender: TObject);
+var LinhaSelecionada: integer;
+
+begin
+  LinhaSelecionada := gridCategorias.Row;
+  if (LinhaSelecionada > 0) and (gridCategorias.Cells[0, LinhaSelecionada] <> '') then
+  begin
+    FIDEdicao := StrToInt(gridCategorias.Cells[0, LinhaSelecionada]);
+    edtNome.Text := gridCategorias.Cells[1, LinhaSelecionada];
+    btnSalvar.Caption := '&Atualizar';
+    edtNome.SetFocus;
+  end;
+end;
+
+procedure TfrmCadCategoria.btnExcluirClick(Sender: TObject);
+var
+  IdExcluir: integer;
+  LinhaSelecionada: integer;
+
+begin
+  LinhaSelecionada := gridCategorias.Row;
+  if (LinhaSelecionada > 0) and (gridCategorias.Cells[0, LinhaSelecionada] <> '') then
+  begin
+    IdExcluir := StrToInt(gridCategorias.Cells[0, LinhaSelecionada]);
+
+    if MessageDlg('Confirma a exclusão da categoria selecionada?', mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+    begin
+      if FCategoriaService.Excluir(IdExcluir) then
+      begin
+        ShowMessage('Categoria excluída com sucesso!');
+        LimparCampos;
+        CarregarGrid;
+      end;
+    end;
+  end;
+end;
+
+procedure TfrmCadCategoria.btnSalvarClick(Sender: TObject);
+var Categoria: TCategoria;
+
+begin
+  Categoria := TCategoria.Create;
+ try
+  try
+    Categoria.Id := FIDEdicao;
+    Categoria.Nome := edtNome.Text;
+
+    if FIDEdicao = 0 then
+    begin
+      if FCategoriaService.Inserir(Categoria) then
+        ShowMessage('Categoria cadastrada com sucesso!');
+    end
+    else
+    begin
+      if FCategoriaService.Atualizar(Categoria) then
+        ShowMessage('Categoria atualizada com sucesso!');
+    end;
+
+    LimparCampos;
+    CarregarGrid;
+    except
+      on E: Exception do
+      begin
+        ShowMessage(E.Message);
+      end;
+  end;
+ finally
+   Categoria.Free;
+ end;
+end;
+
+procedure TfrmCadCategoria.CarregarGrid;
+var
+  Lista: TObjectList<TCategoria>;
+  Categoria: TCategoria;
+  Linha: integer;
+
+begin
+  gridCategorias.ColCount := 2;
+  gridCategorias.Cells[0, 0] := 'ID';
+  gridCategorias.Cells[1, 0] := 'Nome da categoria';
+
+  Lista := FCategoriaService.ListarTodas;
+  try
+    gridCategorias.RowCount := Lista.Count + 1;
+
+    if Lista.Count = 0 then
+    begin
+      gridCategorias.RowCount := 2;
+      gridCategorias.Cells[0, 1] := '';
+      gridCategorias.Cells[1, 1] := 'Nenhuma categoria cadastrada';
+      Exit;
+    end;
+
+    Linha := 1;
+    for Categoria in Lista do
+      begin
+        gridCategorias.Cells[0, Linha] := Categoria.Id.ToString;
+        gridCategorias.Cells[1, Linha] := Categoria.Nome;
+        Inc(Linha);
+      end;
+  finally
+    Lista.Free;
+  end;
+end;
+
+end.

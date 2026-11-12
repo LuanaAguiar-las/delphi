@@ -1,0 +1,20 @@
+unit CategoriaModel;
+
+interface
+
+type
+  TCategoria = class
+    private
+      FId: integer;
+      Fnome: string;
+      procedure SetNome(const Value: string);
+
+    public
+      Constructor Create;
+      property Id: integer read FId write FId;
+      property Nome: string read FNome write FNome;
+  end;
+
+implementation
+
+end.

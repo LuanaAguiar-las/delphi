@@ -1,0 +1,25 @@
+unit CategoriaService;
+
+interface
+
+uses
+  CategoriaModel, uDataModule,
+  System.SysUtils, System.Generics.Collections, FireDAC.Comp.Client;
+
+type
+  TCategoriaService = class
+    private
+      FQuery: TFDQuery;
+    public
+      constructor Create;
+      destructor Destroy; override;
+      function Inserir(const ACategoria: TCategoria): boolean;
+      function Atualizar(const ACategoria: TCategoria): boolean;
+      function Excluir(const AId: integer): boolean;
+      function ObterPorId(const AId: integer): TCategoria;
+      function ListarTodas: TObjectList<TCategoria>
+  end;
+
+implementation
+
+end.

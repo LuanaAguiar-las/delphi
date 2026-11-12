@@ -1,0 +1,33 @@
+unit FrmCategoria;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.StdCtrls, Vcl.ExtCtrls;
+
+type
+  TfrmCadCategoria = class(TForm)
+    pnlCampos: TPanel;
+    pnlBotoes: TPanel;
+    lblNome: TLabel;
+    edtNome: TEdit;
+    btnSalvar: TButton;
+    btnEditar: TButton;
+    btnExcluir: TButton;
+    btnCancelar: TButton;
+    gridCategorias: TStringGrid;
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmCadCategoria: TfrmCadCategoria;
+
+implementation
+
+{$R *.dfm}
+
+end.

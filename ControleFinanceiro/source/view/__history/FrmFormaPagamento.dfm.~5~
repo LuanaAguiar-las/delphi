@@ -1,0 +1,107 @@
+object frmCadFormaPagamento: TfrmCadFormaPagamento
+  Left = 0
+  Top = 0
+  BorderIcons = [biSystemMenu]
+  Caption = 'Formas de pagamento'
+  ClientHeight = 441
+  ClientWidth = 400
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -12
+  Font.Name = 'Segoe UI'
+  Font.Style = []
+  Position = poOwnerFormCenter
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  OnShow = FormShow
+  TextHeight = 15
+  object pnlCampos: TPanel
+    Left = 0
+    Top = 0
+    Width = 400
+    Height = 80
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = ''
+    TabOrder = 0
+    object lblNome: TLabel
+      Left = 8
+      Top = 8
+      Width = 167
+      Height = 15
+      Caption = 'Nome da forma de pagamento:'
+    end
+    object edtNome: TEdit
+      Left = 8
+      Top = 29
+      Width = 372
+      Height = 23
+      MaxLength = 50
+      TabOrder = 0
+    end
+  end
+  object pnlBotoes: TPanel
+    Left = 0
+    Top = 80
+    Width = 400
+    Height = 45
+    Align = alTop
+    BevelOuter = bvNone
+    Caption = ''
+    TabOrder = 1
+    object btnSalvar: TButton
+      Left = 8
+      Top = 8
+      Width = 80
+      Height = 28
+      Caption = '&Salvar'
+      TabOrder = 0
+      OnClick = btnSalvarClick
+    end
+    object btnEditar: TButton
+      Left = 100
+      Top = 8
+      Width = 80
+      Height = 28
+      Caption = '&Editar'
+      Enabled = False
+      TabOrder = 1
+      OnClick = btnEditarClick
+    end
+    object btnExcluir: TButton
+      Left = 192
+      Top = 8
+      Width = 80
+      Height = 28
+      Caption = 'E&xcluir'
+      Enabled = False
+      TabOrder = 2
+      OnClick = btnExcluirClick
+    end
+    object btnCancelar: TButton
+      Left = 284
+      Top = 8
+      Width = 80
+      Height = 28
+      Caption = '&Cancelar'
+      TabOrder = 3
+      OnClick = btnCancelarClick
+    end
+  end
+  object gridFormasPagamento: TStringGrid
+    Left = 0
+    Top = 125
+    Width = 400
+    Height = 316
+    Align = alClient
+    ColCount = 2
+    DefaultRowHeight = 22
+    FixedCols = 0
+    FixedRows = 1
+    RowCount = 2
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRowSelect]
+    TabOrder = 2
+    OnClick = gridFormasPagamentoClick
+  end
+end

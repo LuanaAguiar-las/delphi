@@ -1,0 +1,17 @@
+program ControleFinanceiro;
+
+uses
+  Vcl.Forms,
+  uFrmPrincipal in 'source\view\uFrmPrincipal.pas' {Form1},
+  uDataModule in 'source\DataModule\uDataModule.pas' {dtmDataBase: TDataModule},
+  CategoriaModel in 'source\Model\CategoriaModel.pas';
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TForm1, Form1);
+  Application.CreateForm(TdtmDataBase, dtmDataBase);
+  Application.Run;
+end.

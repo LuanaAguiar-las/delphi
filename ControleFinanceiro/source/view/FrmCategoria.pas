@@ -1,0 +1,220 @@
+﻿unit FrmCategoria;
+
+interface
+
+uses
+  CategoriaModel, CategoriaService,
+  Winapi.Windows, Winapi.Messages,
+  System.SysUtils, System.Variants, System.Classes,
+  System.Generics.Collections, System.UITypes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs,
+  Vcl.Grids, Vcl.StdCtrls, Vcl.ExtCtrls;
+
+type
+  TfrmCadCategoria = class(TForm)
+    pnlCampos: TPanel;
+    lblNome: TLabel;
+    edtNome: TEdit;
+    pnlBotoes: TPanel;
+    btnSalvar: TButton;
+    btnEditar: TButton;
+    btnExcluir: TButton;
+    btnCancelar: TButton;
+    gridCategorias: TStringGrid;
+    procedure FormCreate(Sender: TObject);
+    procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
+    procedure btnSalvarClick(Sender: TObject);
+    procedure btnEditarClick(Sender: TObject);
+    procedure btnExcluirClick(Sender: TObject);
+    procedure btnCancelarClick(Sender: TObject);
+    procedure gridCategoriasClick(Sender: TObject);
+  private
+    FCategoriaService: TCategoriaService;
+    FIDEdicao: Integer;
+    procedure CarregarGrid;
+    procedure LimparCampos;
+  public
+  end;
+
+var
+  frmCadCategoria: TfrmCadCategoria;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmCadCategoria.FormCreate(Sender: TObject);
+begin
+  FCategoriaService := TCategoriaService.Create;
+
+  gridCategorias.ColWidths[0] := 50;
+  gridCategorias.ColWidths[1] := 346;
+
+  LimparCampos;
+  CarregarGrid;
+end;
+
+procedure TfrmCadCategoria.FormDestroy(Sender: TObject);
+begin
+  FCategoriaService.Free;
+end;
+
+procedure TfrmCadCategoria.FormShow(Sender: TObject);
+begin
+  edtNome.SetFocus;
+end;
+
+procedure TfrmCadCategoria.LimparCampos;
+begin
+  FIDEdicao := 0;
+  edtNome.Clear;
+  btnSalvar.Caption := '&Salvar';
+  btnEditar.Enabled := False;
+  btnExcluir.Enabled := False;
+  //gridCategorias.Row := 0;
+end;
+
+procedure TfrmCadCategoria.CarregarGrid;
+var
+  Lista: TObjectList<TCategoria>;
+  Categoria: TCategoria;
+  Linha: Integer;
+begin
+  gridCategorias.ColCount := 2;
+  gridCategorias.Cells[0, 0] := 'ID';
+  gridCategorias.Cells[1, 0] := 'Nome da categoria';
+
+  Lista := FCategoriaService.ListarTodas;
+  try
+    if Lista.Count = 0 then
+    begin
+      gridCategorias.RowCount := 2;
+      gridCategorias.FixedRows := 1;
+      gridCategorias.Cells[0, 1] := '';
+      gridCategorias.Cells[1, 1] := 'Nenhuma categoria cadastrada';
+      Exit;
+    end;
+
+    gridCategorias.RowCount := Lista.Count + 1;
+    gridCategorias.FixedRows := 1;
+    Linha := 1;
+    for Categoria in Lista do
+    begin
+      gridCategorias.Cells[0, Linha] := Categoria.Id.ToString;
+      gridCategorias.Cells[1, Linha] := Categoria.Nome;
+      Inc(Linha);
+    end;
+  finally
+    Lista.Free;
+  end;
+end;
+
+procedure TfrmCadCategoria.gridCategoriasClick(Sender: TObject);
+var
+  Linha: Integer;
+begin
+  Linha := gridCategorias.Row;
+  if (Linha > 0) and (gridCategorias.Cells[0, Linha] <> '') then
+  begin
+    btnEditar.Enabled  := True;
+    btnExcluir.Enabled := True;
+  end
+  else
+  begin
+    btnEditar.Enabled  := False;
+    btnExcluir.Enabled := False;
+  end;
+end;
+
+procedure TfrmCadCategoria.btnSalvarClick(Sender: TObject);
+var
+  Categoria: TCategoria;
+begin
+  if Trim(edtNome.Text) = '' then
+  begin
+    ShowMessage('Informe o nome da categoria.');
+    edtNome.SetFocus;
+    Exit;
+  end;
+
+  Categoria := TCategoria.Create;
+  try
+    try
+      Categoria.Id   := FIDEdicao;
+      Categoria.Nome := edtNome.Text;
+
+      if FIDEdicao = 0 then
+      begin
+        if FCategoriaService.Inserir(Categoria) then
+          ShowMessage('Categoria cadastrada com sucesso!');
+      end
+      else
+      begin
+        if FCategoriaService.Atualizar(Categoria) then
+          ShowMessage('Categoria atualizada com sucesso!');
+      end;
+
+      LimparCampos;
+      CarregarGrid;
+    except
+      on E: Exception do
+        ShowMessage(E.Message);
+    end;
+  finally
+    Categoria.Free;
+  end;
+end;
+
+procedure TfrmCadCategoria.btnEditarClick(Sender: TObject);
+var
+  Linha: Integer;
+begin
+  Linha := gridCategorias.Row;
+  if (Linha > 0) and (gridCategorias.Cells[0, Linha] <> '') then
+  begin
+    FIDEdicao    := StrToInt(gridCategorias.Cells[0, Linha]);
+    edtNome.Text := gridCategorias.Cells[1, Linha];
+    btnSalvar.Caption := '&Atualizar';
+    btnEditar.Enabled  := False;
+    btnExcluir.Enabled := False;
+    edtNome.SetFocus;
+  end;
+end;
+
+procedure TfrmCadCategoria.btnExcluirClick(Sender: TObject);
+var
+  Linha: Integer;
+  IdExcluir: Integer;
+begin
+  Linha := gridCategorias.Row;
+  if (Linha < 1) or (gridCategorias.Cells[0, Linha] = '') then
+  begin
+    ShowMessage('Selecione uma categoria para excluir.');
+    Exit;
+  end;
+
+  IdExcluir := StrToIntDef(gridCategorias.Cells[0, Linha], 0);
+  if IdExcluir = 0 then
+  begin
+    ShowMessage('Selecione uma categoria válida para excluir.');
+    Exit;
+  end;
+
+  if Application.MessageBox('Confirma a exclusão da categoria selecionada?',
+    'Confirmação', MB_YESNO + MB_ICONQUESTION) <> IDYES then Exit;
+
+  if FCategoriaService.Excluir(IdExcluir) then
+  begin
+    ShowMessage('Categoria excluída com sucesso!');
+    LimparCampos;
+    CarregarGrid;
+  end;
+end;
+
+procedure TfrmCadCategoria.btnCancelarClick(Sender: TObject);
+begin
+  LimparCampos;
+end;
+
+end.

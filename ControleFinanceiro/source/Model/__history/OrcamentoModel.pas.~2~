@@ -1,0 +1,86 @@
+unit OrcamentoModel;
+
+interface
+
+uses
+  OrcamentoDespesaModel,
+  System.SysUtils, System.Generics.Collections;
+
+type
+  TOrcamento = class
+    private
+      FId: integer;
+      FMesAno: string;
+      FSalarioLiquido: currency;
+      FRendaExtra: currency;
+      FMetaInvestimento: currency;
+      FObservacao: string;
+      FDespesas: TObjectList<TOrcamentoDespesa>;
+      procedure SetMesAno(const Value: string);
+    public
+      constructor Create;
+      destructor Destroy; override;
+      function RendaTotal: currency;
+      function TotalDespesas: currency;
+      function SaldoLivre: currency;
+      property Id: integer read FId write FId;
+      property MesAno: string read FMesAno write FMesAno;
+      property SalarioLiquido: currency read FSalarioLiquido write FSalarioLiquido;
+      property RendaExtra: currency read FRendaExtra write FRendaExtra;
+      property MetaInvestimento: currency read FMetaInvestimento write FMetaInvestimento;
+      property Observacao: string read FObservacao write FObservacao;
+  end;
+
+implementation
+
+{ TOrcamento }
+
+constructor TOrcamento.Create;
+begin
+  inherited Create;
+  FId := 0;
+  FSalarioLiquido := 0;
+  FRendaExtra := 0;
+  FMetaInvestimento := 0;
+  FDespesas := TObjectList<TOrcamentoDespesa>.Create(True);
+end;
+
+destructor TOrcamento.Destroy;
+begin
+  FDespesas.Free;
+  inherited Destroy;
+end;
+
+function TOrcamento.RendaTotal: currency;
+begin
+  Result := FSalarioLiquido + FRendaExtra;
+end;
+
+function TOrcamento.SaldoLivre: currency;
+begin
+  Result := RendaTotal - TotalDespesas - FMetaInvestimento;
+end;
+
+procedure TOrcamento.SetMesAno(const Value: string);
+begin
+  if Trim(Value) = '' then
+    raise Exception.Create('Infome o mês e ano de referência no formato DD/MMMM.');
+
+  FMesAno := Trim(Value);
+end;
+
+function TOrcamento.TotalDespesas: currency;
+var
+  Despesa: TOrcamentoDespesa;
+  Soma: currency;
+begin
+  Soma := 0;
+  // varre a lista de objetos e acumula o valor de cada despesa
+  for Despesa in FDespesas do
+  begin
+    Soma :=  Soma + Despesa.Valor;
+  end;
+  Result := Soma;
+end;
+
+end.

@@ -1,0 +1,61 @@
+unit FrmPrincipal;
+
+interface
+
+uses
+  FrmCategoria, FrmFormaPagamento, OrcamentoModel, FrmOrcamento,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls;
+
+type
+  TfrmTelaPrincipal = class(TForm)
+    btnCategorias: TButton;
+    btnFormasPagamento: TButton;
+    btnOrcamento: TButton;
+    procedure btnCategoriasClick(Sender: TObject);
+    procedure btnFormasPagamentoClick(Sender: TObject);
+    procedure btnOrcamentoClick(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  frmTelaPrincipal: TfrmTelaPrincipal;
+
+implementation
+
+{$R *.dfm}
+
+procedure TfrmTelaPrincipal.btnCategoriasClick(Sender: TObject);
+begin
+  FrmCadCategoria := TfrmCadCategoria.Create(Self);
+  try
+    frmCadCategoria.ShowModal;
+  finally
+  FreeAndNil(frmCadCategoria);
+  end;
+end;
+
+procedure TfrmTelaPrincipal.btnFormasPagamentoClick(Sender: TObject);
+begin
+ FrmCadFormaPagamento := TfrmCadFormaPagamento.Create(Self);
+  try
+    frmCadFormaPagamento.ShowModal;
+  finally
+  FreeAndNil(frmCadFormaPagamento);
+  end;
+end;
+
+procedure TfrmTelaPrincipal.btnOrcamentoClick(Sender: TObject);
+begin
+ FrmOrcamento := TfrmCadOrcamento.Create(Self);
+  try
+    frmCadOrcamento.ShowModal;
+  finally
+  FreeAndNil(frmCadOrcamento);
+  end;
+end;
+
+end.
